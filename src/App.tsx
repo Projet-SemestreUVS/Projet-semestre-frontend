@@ -1,122 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// PUBLIC
+import Home from "./pages/public/Home";
+import About from "./pages/public/About";
+import Contact from "./pages/public/Contact";
+import Services from "./pages/public/Services";
+import ServiceDetail from "./pages/public/ServiceDetail";
+import NotFound from "./pages/public/NotFound";
+
+// AUTH
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import VerifyEmail from "./pages/auth/VerifyEmail";
+
+// ROUTES PROTÉGÉES
+import AdminRoute from "./routes/AdminRoute";
+import PrestataireRoute from "./routes/PrestataireRoute";
+import DemandeurRoute from "./routes/DemandeurRoute";
+
+// ADMIN
+import Statistiques from "./pages/admin/Statistiques";
+import Utilisateurs from "./pages/admin/Utilisateurs";
+import Categories from "./pages/admin/Categories";
+import ServicesAdmin from "./pages/admin/Services";
+import ReservationsAdmin from "./pages/admin/ReservationsAdmin";
+import { Avis } from "./pages/admin/Avis";
+
+// PRESTATAIRE
+import DashboardPrestataire from "./pages/prestataire/DashboardPrestataire";
+import MesServices from "./pages/prestataire/MesServices";
+
+// DEMANDEUR
+import DashboardDemandeur from "./pages/demandeur/DashboardDemandeur";
+import MesReservations from "./pages/demandeur/MesReservations";
+import FaireReservation from "./pages/demandeur/FaireReservation";
+import MesAvis from "./pages/demandeur/MesAvis";
+import Messages from "./pages/demandeur/Messages";
+import Notifications from "./pages/demandeur/Notifications";
+import Profile from "./pages/demandeur/Profile";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
 
-      <div className="ticks"></div>
+        {/* PUBLIC */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/contact" element={<Contact />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* AUTH */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* ADMIN */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/statistiques" element={<Statistiques />} />
+          <Route path="/admin/users" element={<Utilisateurs />} />
+          <Route path="/admin/categories" element={<Categories />} />
+          <Route path="/admin/services" element={<ServicesAdmin />} />
+          <Route path="/admin/reservations" element={<ReservationsAdmin />} />
+          <Route path="/admin/reviews" element={<Avis />} />
+        </Route>
+
+        {/* PRESTATAIRE */}
+        <Route element={<PrestataireRoute />}>
+          <Route path="/prestataire/dashboard" element={<DashboardPrestataire />} />
+          <Route path="/prestataire/services" element={<MesServices />} />
+        </Route>
+
+        {/* DEMANDEUR */}
+        <Route element={<DemandeurRoute />}>
+          <Route path="/demandeur/dashboard" element={<DashboardDemandeur />} />
+          <Route path="/demandeur/reservations" element={<MesReservations />} />
+          <Route path="/demandeur/reservation/nouvelle" element={<FaireReservation />} />
+          <Route path="/demandeur/avis" element={<MesAvis />} />
+          <Route path="/demandeur/messages" element={<Messages />} />
+          <Route path="/demandeur/notifications" element={<Notifications />} />
+          <Route path="/demandeur/profile" element={<Profile />} />
+        </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
