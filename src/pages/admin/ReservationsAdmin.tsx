@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import AdminSidebar from "../../components/dashboard/AdminSidebar";
+import ReservationForm from "./ReservationForm";
 import api from "../../services/api";
 
 interface Reservation {
@@ -55,72 +56,81 @@ const ReservationsAdmin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  
+  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [editingReservation, setEditingReservation] = useState<any>(null);
 
   useEffect(() => {
     fetchReservations();
   }, []);
 
-// src/pages/admin/ReservationsAdmin.tsx - modifier la fonction fetchReservations
-
-const fetchReservations = async () => {
+  const fetchReservations = async () => {
     try {
-        setLoading(true);
-        setError(null);
-        
-        // Vérifier d'abord si l'utilisateur est admin
-        const userStr = localStorage.getItem('user');
-        let user = null;
-        if (userStr) {
-            try {
-                user = JSON.parse(userStr);
-            } catch (e) {
-                console.error('Erreur parsing user:', e);
-            }
-        }
-        
-        // Si l'utilisateur n'est pas admin, essayer quand même
-        // Le backend vérifiera
-        const response = await api.get("/auth/reservations");
-        console.log("Réservations reçues:", response.data);
-        
-        let reservationsData = [];
-        if (response.data?.data) {
-            reservationsData = response.data.data;
-        } else if (Array.isArray(response.data)) {
-            reservationsData = response.data;
-        } else if (response.data?.reservations) {
-            reservationsData = response.data.reservations;
-        } else {
-            reservationsData = [];
-        }
-        
-        setReservations(reservationsData);
+      setLoading(true);
+      setError(null);
+      
+      const response = await api.get("/auth/reservations");
+      console.log("Réservations reçues:", response.data);
+      
+      let reservationsData = [];
+      if (response.data?.data) {
+        reservationsData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        reservationsData = response.data;
+      } else if (response.data?.reservations) {
+        reservationsData = response.data.reservations;
+      } else {
+        reservationsData = [];
+      }
+      
+      setReservations(reservationsData);
     } catch (err: any) {
-        console.error("Erreur détaillée:", err);
-        console.error("Response:", err.response);
-        console.error("Status:", err.response?.status);
-        console.error("Data:", err.response?.data);
-        
-        if (err.response?.status === 403) {
-            // Vérifier le rôle depuis la réponse ou localStorage
-            const userRole = user?.role || 'unknown';
-            setError(
-                `Accès non autorisé. Votre rôle est "${userRole}". ` +
-                `Vous devez être administrateur pour accéder à cette page.`
-            );
-        } else if (err.response?.status === 401) {
-            setError("Non authentifié. Veuillez vous reconnecter.");
-            // Rediriger vers login
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
-        } else {
-            setError(err.response?.data?.message || "Erreur lors du chargement des réservations");
+      console.error("Erreur détaillée:", err);
+      
+      // ✅ CORRECTION : Vérifier si c'est vraiment une erreur 403
+      // Si c'est une autre erreur, afficher un message plus générique
+      if (err.response?.status === 403) {
+        // Au lieu d'erreur, on affiche un message informatif
+        // Mais on ne bloque pas l'affichage
+        setError("Vous n'avez pas les droits admin. Affichage en lecture seule.");
+        // On essaie quand même d'afficher les données si disponibles
+        if (err.response?.data?.data) {
+          setReservations(err.response.data.data);
         }
+      } else if (err.response?.status === 401) {
+        setError("Session expirée. Veuillez vous reconnecter.");
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        // ✅ CORRECTION : Message d'erreur plus précis
+        setError(err.response?.data?.message || "Erreur lors du chargement des réservations");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+
+  const handleCreate = () => {
+    setFormMode('create');
+    setEditingReservation(null);
+    setShowForm(true);
+  };
+
+  const handleEdit = (reservation: any) => {
+    setFormMode('edit');
+    setEditingReservation(reservation);
+    setShowForm(true);
+  };
+
+  const handleFormSuccess = () => {
+    fetchReservations();
+    showNotification(
+      formMode === 'create' ? 'Réservation créée avec succès' : 'Réservation mise à jour avec succès',
+      'success'
+    );
+  };
 
   const getStatutClass = (statut: string) => {
     switch (statut) {
@@ -152,7 +162,6 @@ const fetchReservations = async () => {
   const handleUpdateStatut = async (id: number, newStatut: string) => {
     try {
       setUpdating(true);
-      // CORRECTION: Utiliser /auth/reservations
       await api.put(`/auth/reservations/${id}`, { statut: newStatut });
       
       setReservations(prev =>
@@ -178,7 +187,6 @@ const fetchReservations = async () => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action est irréversible.")) return;
     
     try {
-      // CORRECTION: Utiliser /auth/reservations
       await api.delete(`/auth/reservations/${id}`);
       setReservations(prev => prev.filter(r => r.id !== id));
       if (selectedReservation && selectedReservation.id === id) {
@@ -227,7 +235,6 @@ const fetchReservations = async () => {
     return matchesStatut && matchesSearch;
   });
 
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredReservations.slice(indexOfFirstItem, indexOfLastItem);
@@ -258,25 +265,11 @@ const fetchReservations = async () => {
     );
   }
 
-  if (error) {
-    return (
-      <DashboardLayout sidebar={<AdminSidebar />}>
-        <div className="error-container">
-          <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: "3rem", color: "#ef4444" }}></i>
-          <h3>Erreur de chargement</h3>
-          <p>{error}</p>
-          <button onClick={fetchReservations} className="retry-btn">
-            <i className="bi bi-arrow-repeat"></i> Réessayer
-          </button>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
+  // ✅ CORRECTION : Même en cas d'erreur, on affiche la page avec un message
+  // mais on ne bloque pas l'affichage complet
   return (
     <DashboardLayout sidebar={<AdminSidebar />}>
       <div className="reservations-manager">
-        {/* Notification */}
         {notification && (
           <div className={`notification notification-${notification.type}`}>
             <i className={`bi bi-${notification.type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'}`}></i>
@@ -284,12 +277,26 @@ const fetchReservations = async () => {
           </div>
         )}
 
+        {/* ✅ CORRECTION : Afficher l'erreur mais pas bloquer */}
+        {error && (
+          <div className="error-banner">
+            <i className="bi bi-info-circle"></i>
+            <span>{error}</span>
+          </div>
+        )}
+
         <div className="page-header">
-          <h1>
-            <i className="bi bi-calendar-check"></i>
-            Gestion des réservations
-          </h1>
-          <p>Consultez et gérez toutes les réservations de la plateforme</p>
+          <div className="header-left">
+            <h1>
+              <i className="bi bi-calendar-check"></i>
+              Gestion des réservations
+            </h1>
+            <p>Consultez et gérez toutes les réservations de la plateforme</p>
+          </div>
+          <button className="btn-primary btn-create" onClick={handleCreate}>
+            <i className="bi bi-plus-lg"></i>
+            Nouvelle réservation
+          </button>
         </div>
 
         {/* Statistiques */}
@@ -464,6 +471,13 @@ const fetchReservations = async () => {
                             <i className="bi bi-eye"></i>
                           </button>
                           <button
+                            className="action-btn edit-btn"
+                            onClick={() => handleEdit(reservation)}
+                            title="Modifier"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button
                             className="action-btn delete-btn"
                             onClick={() => handleDelete(reservation.id)}
                             title="Supprimer"
@@ -478,7 +492,6 @@ const fetchReservations = async () => {
               </table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="pagination">
                 <button 
@@ -523,7 +536,14 @@ const fetchReservations = async () => {
           </>
         )}
 
-        {/* Modal Détails */}
+        <ReservationForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSuccess={handleFormSuccess}
+          reservation={editingReservation}
+          mode={formMode}
+        />
+
         {showModal && selectedReservation && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -638,7 +658,23 @@ const fetchReservations = async () => {
           position: relative;
         }
 
-        /* Notification */
+        .error-banner {
+          background: #fef3c7;
+          border-left: 4px solid #d97706;
+          padding: 1rem 1.5rem;
+          border-radius: 12px;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #92400e;
+        }
+
+        .error-banner i {
+          font-size: 1.25rem;
+          color: #d97706;
+        }
+
         .notification {
           position: fixed;
           top: 20px;
@@ -675,7 +711,6 @@ const fetchReservations = async () => {
           }
         }
 
-        /* Loading */
         .loading-container {
           display: flex;
           flex-direction: column;
@@ -693,38 +728,29 @@ const fetchReservations = async () => {
           animation: spin 1s linear infinite;
         }
 
+        .spinner-small {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          border: 2px solid #fff;
+          border-top-color: transparent;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          margin-right: 8px;
+        }
+
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
-        /* Error */
-        .error-container {
-          text-align: center;
-          padding: 3rem;
-          background: white;
-          border-radius: 16px;
-          margin: 2rem;
-        }
-
-        .retry-btn {
-          margin-top: 1rem;
-          padding: 0.75rem 1.5rem;
-          background: #354dd4;
-          color: white;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        /* Header */
         .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
           margin-bottom: 2rem;
         }
 
-        .page-header h1 {
+        .header-left h1 {
           font-size: 1.875rem;
           font-weight: 700;
           color: #1e293b;
@@ -734,11 +760,30 @@ const fetchReservations = async () => {
           gap: 0.75rem;
         }
 
-        .page-header p {
+        .header-left p {
           color: #64748b;
         }
 
-        /* Stats Grid */
+        .btn-create {
+          padding: 0.75rem 1.5rem;
+          background: #354dd4;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-weight: 500;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.2s;
+        }
+
+        .btn-create:hover {
+          background: #1e40af;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(53, 77, 212, 0.3);
+        }
+
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -815,7 +860,6 @@ const fetchReservations = async () => {
           font-size: 0.875rem;
         }
 
-        /* Filters */
         .filters-bar {
           background: white;
           border-radius: 16px;
@@ -909,7 +953,6 @@ const fetchReservations = async () => {
           background: rgba(255,255,255,0.2);
         }
 
-        /* Table */
         .table-wrapper {
           background: white;
           border-radius: 16px;
@@ -1044,6 +1087,17 @@ const fetchReservations = async () => {
           transform: scale(1.05);
         }
 
+        .edit-btn {
+          background: #dbeafe;
+          color: #3b82f6;
+        }
+
+        .edit-btn:hover {
+          background: #3b82f6;
+          color: white;
+          transform: scale(1.05);
+        }
+
         .delete-btn {
           background: #fee2e2;
           color: #ef4444;
@@ -1055,7 +1109,6 @@ const fetchReservations = async () => {
           transform: scale(1.05);
         }
 
-        /* Empty State */
         .empty-state {
           text-align: center;
           padding: 4rem;
@@ -1090,7 +1143,6 @@ const fetchReservations = async () => {
           gap: 0.5rem;
         }
 
-        /* Pagination */
         .pagination {
           display: flex;
           justify-content: center;
@@ -1145,7 +1197,6 @@ const fetchReservations = async () => {
           border-color: #354dd4;
         }
 
-        /* Modal */
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -1174,6 +1225,10 @@ const fetchReservations = async () => {
           max-height: 85vh;
           overflow-y: auto;
           animation: slideUp 0.3s ease;
+        }
+
+        .form-modal {
+          max-width: 700px;
         }
 
         @keyframes slideUp {
@@ -1229,6 +1284,73 @@ const fetchReservations = async () => {
           border-top: 1px solid #e2e8f0;
           display: flex;
           justify-content: flex-end;
+          gap: 0.75rem;
+        }
+
+        .reservation-form {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .form-body {
+          padding: 1.5rem;
+        }
+
+        .form-error {
+          background: #fee2e2;
+          color: #991b1b;
+          padding: 0.75rem 1rem;
+          border-radius: 10px;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+          grid-column: span 2;
+        }
+
+        .form-group label {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #1e293b;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+          padding: 0.75rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          font-size: 0.875rem;
+          transition: all 0.2s;
+          font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+          outline: none;
+          border-color: #354dd4;
+          box-shadow: 0 0 0 3px rgba(53, 77, 212, 0.1);
+        }
+
+        .form-group textarea {
+          resize: vertical;
+          min-height: 80px;
         }
 
         .details-grid {
@@ -1348,10 +1470,36 @@ const fetchReservations = async () => {
           background: #e2e8f0;
         }
 
-        /* Responsive */
+        .btn-primary {
+          padding: 0.6rem 1.5rem;
+          background: #354dd4;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.2s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+          background: #1e40af;
+        }
+
+        .btn-primary:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
         @media (max-width: 768px) {
           .reservations-manager {
             padding: 1rem;
+          }
+
+          .page-header {
+            flex-direction: column;
+            gap: 1rem;
           }
 
           .stats-grid {
@@ -1368,6 +1516,14 @@ const fetchReservations = async () => {
 
           .details-grid {
             grid-template-columns: 1fr;
+          }
+
+          .form-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .form-group.full-width {
+            grid-column: span 1;
           }
 
           .detail-group.full-width {
