@@ -1,108 +1,289 @@
-import { useEffect, useState } from "react";
+import {
+useEffect,
+useState
+} from "react";
 
-interface Props {
-  category?: any;
-  onSave: (data: any) => void;
+
+interface Props{
+
+category?:any;
+
+onSave:(data:FormData)=>void;
+
 }
 
+
+
 const CategoryModal = ({
-  category,
-  onSave,
-}: Props) => {
+category,
+onSave
 
-  const [name, setName] =
-    useState("");
+}:Props)=>{
 
-  useEffect(() => {
 
-    if (category) {
-      setName(category.name);
-    }
+const [nom,setNom]=useState("");
 
-  }, [category]);
+const [description,setDescription]=useState("");
 
-  const handleSubmit = (
-    e: React.FormEvent
-  ) => {
+const [icone,setIcone]=useState<File|null>(null);
 
-    e.preventDefault();
 
-    onSave({
-      name,
-    });
-  };
 
-  return (
 
-    <div
-      className="modal fade"
-      id="categoryModal"
-      tabIndex={-1}
-    >
 
-      <div className="modal-dialog">
+useEffect(()=>{
 
-        <div className="modal-content">
 
-          <div className="modal-header">
+if(category){
 
-            <h5>
+setNom(
+category.nom
+);
 
-              {category
-                ? "Modifier"
-                : "Ajouter"}
+setDescription(
+category.description || ""
+);
 
-              {" "}Catégorie
 
-            </h5>
+}else{
 
-            <button
-              className="btn-close"
-              data-bs-dismiss="modal"
-            />
 
-          </div>
+setNom("");
 
-          <form
-            onSubmit={handleSubmit}
-          >
+setDescription("");
 
-            <div className="modal-body">
+setIcone(null);
 
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nom catégorie"
-                value={name}
-                onChange={(e)=>
-                  setName(
-                    e.target.value
-                  )
-                }
-              />
 
-            </div>
+}
 
-            <div className="modal-footer">
 
-              <button
-                className="btn btn-primary"
-              >
+},[category]);
 
-                Enregistrer
 
-              </button>
 
-            </div>
 
-          </form>
 
-        </div>
 
-      </div>
 
-    </div>
-  );
+
+const submit=(e:any)=>{
+
+
+e.preventDefault();
+
+
+
+const data =
+new FormData();
+
+
+
+data.append(
+"nom",
+nom
+);
+
+
+
+data.append(
+"description",
+description
+);
+
+
+
+
+if(icone){
+
+data.append(
+"icone",
+icone
+);
+
+}
+
+
+
+onSave(data);
+
+
+
 };
+
+
+
+
+
+
+return (
+
+<div
+
+className="modal fade"
+
+id="categoryModal"
+
+tabIndex={-1}
+
+>
+
+
+
+<div className="modal-dialog">
+
+
+<div className="modal-content">
+
+
+
+<form onSubmit={submit}>
+
+
+<div className="modal-header">
+
+
+<h5>
+Catégorie
+</h5>
+
+
+
+<button
+
+type="button"
+
+className="btn-close"
+
+data-bs-dismiss="modal"
+
+/>
+
+
+</div>
+
+
+
+
+
+
+<div className="modal-body">
+
+
+
+
+
+<input
+
+className="form-control mb-3"
+
+placeholder="Nom"
+
+value={nom}
+
+onChange={
+e=>setNom(
+e.target.value
+)
+}
+
+/>
+
+
+
+
+
+
+
+<textarea
+
+className="form-control mb-3"
+
+placeholder="Description"
+
+value={description}
+
+onChange={
+e=>setDescription(
+e.target.value
+)
+}
+
+/>
+
+
+
+
+
+
+<input
+
+type="file"
+
+className="form-control"
+
+accept="image/*"
+
+onChange={
+e=>setIcone(
+e.target.files?.[0] || null
+)
+}
+
+/>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<div className="modal-footer">
+
+
+
+<button
+
+type="submit"
+
+className="btn btn-primary"
+
+>
+
+Enregistrer
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+</form>
+
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+);
+
+
+};
+
 
 export default CategoryModal;

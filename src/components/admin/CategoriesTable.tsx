@@ -1,91 +1,206 @@
 interface Props {
 
-  categories: any[];
+categories:any[];
 
-  onEdit: (category:any) => void;
+onEdit:(category:any)=>void;
 
-  onDelete: (id:number) => void;
+onDelete:(id:number)=>void;
+
 }
 
-const CategoriesTable = ({
-  categories,
-  onEdit,
-  onDelete,
-}: Props) => {
 
-  return (
 
-    <div className="table-responsive">
+const CategoriesTable=({
+categories,
+onEdit,
+onDelete
 
-      <table
-        className="table table-hover"
-      >
+}:Props)=>{
 
-        <thead>
 
-          <tr>
+return (
 
-            <th>ID</th>
+<div className="table-responsive">
 
-            <th>Nom</th>
 
-            <th>Actions</th>
+<table className="table table-bordered">
 
-          </tr>
 
-        </thead>
+<thead>
 
-        <tbody>
 
-          {categories.map(
-            (category) => (
+<tr className="table-header">
 
-            <tr
-              key={category.id}
-            >
+<th>#</th>
 
-              <td>
-                {category.id}
-              </td>
+<th>Nom</th>
 
-              <td>
-                {category.name}
-              </td>
+<th>Description</th>
 
-              <td>
+<th>Icone</th>
 
-                <button
-                  className="btn btn-warning btn-sm me-2"
-                  onClick={() =>
-                    onEdit(category)
-                  }
-                >
-                  Modifier
-                </button>
+<th>Actions</th>
 
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() =>
-                    onDelete(
-                      category.id
-                    )
-                  }
-                >
-                  Supprimer
-                </button>
 
-              </td>
+</tr>
 
-            </tr>
 
-          ))}
+</thead>
 
-        </tbody>
 
-      </table>
 
-    </div>
-  );
-};
+<tbody>
+
+
+{
+categories.length>0 ?
+
+categories.map((category,index)=>(
+
+
+<tr key={category.id}>
+
+
+<td>
+{index+1}
+</td>
+
+
+
+<td>
+
+{category.nom}
+
+</td>
+
+
+
+
+<td>
+
+{
+category.description 
+?
+category.description
+:
+"-"
+}
+
+</td>
+
+
+
+
+<td>
+
+{
+category.icone ?
+
+<img
+
+src={
+`http://localhost:8000/storage/${category.icone}`
+}
+
+width="50"
+
+height="50"
+
+style={{
+objectFit:"cover",
+borderRadius:"8px"
+}}
+
+/>
+
+:
+
+"-"
+
+}
+
+</td>
+
+
+
+<td>
+
+
+<button
+
+className="btn btn-warning btn-sm me-2"
+
+onClick={()=>
+onEdit(category)
+}
+
+>
+
+Modifier
+
+</button>
+
+
+
+
+<button
+
+className="btn btn-danger btn-sm"
+
+onClick={()=>
+onDelete(category.id)
+}
+
+>
+
+Supprimer
+
+</button>
+
+
+
+</td>
+
+
+
+</tr>
+
+
+))
+
+
+:
+
+<tr>
+
+<td colSpan={5}
+className="text-center">
+
+Aucune catégorie
+
+</td>
+
+</tr>
+
+
+}
+
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+)
+
+
+}
+
+
 
 export default CategoriesTable;
