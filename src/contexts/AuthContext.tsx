@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -11,7 +10,6 @@ export interface User {
   telephone?: string;
   photo?: string;
   localisation?: string;
-  email_verified_at?: string | null;
 }
 
 interface AuthContextType {
@@ -23,69 +21,64 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ================= INIT =================
   useEffect(() => {
-    const loadUser = async () => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      
-      console.log("AuthProvider - Token présent:", !!token);
-      
-      if (token && storedUser) {
-        try {
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-          
-          // Vérifier la validité du token
-          const response = await api.get('/auth/profile');
-          if (response.data.success) {
-            setUser(response.data.user);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-          }
-        } catch (error) {
-          console.error("Token invalide, déconnexion");
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          delete api.defaults.headers.common['Authorization'];
-        }
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+
+    const initAuth = async () => {
+      if (!token) {
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
+
+      try {
+        // IMPORTANT: utiliser interceptor api.ts uniquement
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+        setUser(parsedUser);
+
+        // vérifier token
+        const response = await api.get('/auth/profile');
+
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
+
+      } catch (error: any) {
+        console.error("Token invalide ou expiré");
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    loadUser();
+
+    initAuth();
   }, []);
 
+  // ================= LOGIN =================
   const login = (token: string, userData: User) => {
-    console.log("AuthProvider.login - Utilisateur:", userData.email, "Rôle:", userData.role);
-    
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
     setUser(userData);
   };
 
+  // ================= LOGOUT =================
   const logout = () => {
-    console.log("AuthProvider.logout - Déconnexion");
-    
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };
 
