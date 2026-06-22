@@ -4,8 +4,23 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import AdminSidebar from "../../components/dashboard/AdminSidebar";
 import "../../styles/dashboard.css";
 
-// Composant Cartes Statistiques
-const StatsCards = ({ data }: { data: any }) => {
+interface MonthlyStat {
+  mois: string;
+  total: number;
+}
+
+interface StatsData {
+  total_users: number;
+  total_prestataires: number;
+  total_demandeurs: number;
+  total_services: number;
+  total_reservations: number;
+  total_revenus: number;
+  reservations_par_mois: MonthlyStat[];
+  revenus_par_mois: MonthlyStat[];
+}
+
+const StatsCards = ({ data }: { data: StatsData | null }) => {
   const cards = [
     { title: "Utilisateurs", value: data?.total_users || 0, icon: "bi-people", color: "#354dd4" },
     { title: "Prestataires", value: data?.total_prestataires || 0, icon: "bi-briefcase", color: "#354dd4" },
@@ -30,24 +45,23 @@ const StatsCards = ({ data }: { data: any }) => {
   );
 };
 
-// Composant Graphique Réservations
-const ReservationsChart = ({ data }: { data: any[] }) => {
+const ReservationsChart = ({ data }: { data: MonthlyStat[] }) => {
   if (!data || data.length === 0) {
     return <div className="chart-placeholder">Aucune donnée de réservation</div>;
   }
 
-  const maxValue = Math.max(...data.map(d => d.total || 0));
+  const maxValue = Math.max(...data.map((d) => d.total || 0));
 
   return (
     <div className="chart-container">
       <div className="chart-bars">
         {data.map((item, index) => (
           <div key={index} className="chart-bar-item">
-            <div 
-              className="chart-bar" 
-              style={{ 
+            <div
+              className="chart-bar"
+              style={{
                 height: `${(item.total / maxValue) * 200}px`,
-                backgroundColor: "#354dd4"
+                backgroundColor: "#354dd4",
               }}
             ></div>
             <div className="chart-label">{item.mois}</div>
@@ -59,24 +73,23 @@ const ReservationsChart = ({ data }: { data: any[] }) => {
   );
 };
 
-// Composant Graphique Revenus
-const RevenueChart = ({ data }: { data: any[] }) => {
+const RevenueChart = ({ data }: { data: MonthlyStat[] }) => {
   if (!data || data.length === 0) {
     return <div className="chart-placeholder">Aucune donnée de revenu</div>;
   }
 
-  const maxValue = Math.max(...data.map(d => d.total || 0));
+  const maxValue = Math.max(...data.map((d) => d.total || 0));
 
   return (
     <div className="chart-container">
       <div className="chart-bars">
         {data.map((item, index) => (
           <div key={index} className="chart-bar-item">
-            <div 
-              className="chart-bar revenue-bar" 
-              style={{ 
+            <div
+              className="chart-bar revenue-bar"
+              style={{
                 height: `${(item.total / maxValue) * 200}px`,
-                backgroundColor: "#22C55E"
+                backgroundColor: "#22C55E",
               }}
             ></div>
             <div className="chart-label">{item.mois}</div>
@@ -89,21 +102,16 @@ const RevenueChart = ({ data }: { data: any[] }) => {
 };
 
 const Statistiques = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<StatsData | null>(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
 
-  useEffect(() => {
-    recupererStatistiques();
-  }, []);
-
-  const recupererStatistiques = async () => {
+  async function recupererStatistiques() {
     try {
       setChargement(true);
       setErreur(null);
-      
-      // Données mockées pour le développement
-      const donneesMock = {
+
+      const donneesMock: StatsData = {
         total_users: 1250,
         total_prestataires: 450,
         total_demandeurs: 800,
@@ -116,7 +124,7 @@ const Statistiques = () => {
           { mois: "Mar", total: 48 },
           { mois: "Avr", total: 61 },
           { mois: "Mai", total: 55 },
-          { mois: "Juin", total: 67 }
+          { mois: "Juin", total: 67 },
         ],
         revenus_par_mois: [
           { mois: "Jan", total: 450000 },
@@ -124,22 +132,25 @@ const Statistiques = () => {
           { mois: "Mar", total: 480000 },
           { mois: "Avr", total: 610000 },
           { mois: "Mai", total: 550000 },
-          { mois: "Juin", total: 670000 }
-        ]
+          { mois: "Juin", total: 670000 },
+        ],
       };
-      
-      // Simuler un délai réseau
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 800));
       setStats(donneesMock);
-      
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error("Erreur:", err);
-      setErreur(err.message || "Erreur lors du chargement des statistiques");
+      setErreur(message || "Erreur lors du chargement des statistiques");
     } finally {
       setChargement(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    recupererStatistiques();
+  }, []);
 
   if (chargement) {
     return (

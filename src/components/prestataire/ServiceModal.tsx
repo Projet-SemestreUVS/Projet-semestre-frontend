@@ -1,223 +1,90 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import type { FormEvent } from "react";
 
-interface Props {
-
-  service?:any;
-
-  categories:any[];
-
-  onSave:(data:FormData)=>void;
+interface Category {
+  id: number;
+  name: string;
 }
 
-const ServiceModal = ({
-  service,
-  categories,
-  onSave
-}:Props) => {
+interface Service {
+  id?: number;
+  titre?: string;
+  description?: string;
+  prix?: string | number;
+  categorie_id?: string | number;
+}
 
-  const [titre,setTitre] =
-  useState("");
+interface Props {
+  service?: Service;
+  categories: Category[];
+  onSave: (data: FormData) => void;
+}
 
-  const [description,
-    setDescription] =
-    useState("");
-
-  const [prix,setPrix] =
-  useState("");
-
-  const [categorieId,
-    setCategorieId] =
-    useState("");
-
-  const [image,
-    setImage] =
-    useState<File|null>(null);
-
-  useEffect(() => {
-
-    if(service){
-
-      setTitre(service.titre);
-
-      setDescription(
-        service.description
-      );
-
-      setPrix(service.prix);
-
-      setCategorieId(
-        service.categorie_id
-      );
-    }
-
-  },[service]);
-
-  const handleSubmit = (
-    e:React.FormEvent
-  ) => {
-
+const ServiceModal = ({ service, categories, onSave }: Props) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData =
-      new FormData();
-
-    formData.append(
-      "titre",
-      titre
-    );
-
-    formData.append(
-      "description",
-      description
-    );
-
-    formData.append(
-      "prix",
-      prix
-    );
-
-    formData.append(
-      "categorie_id",
-      categorieId
-    );
-
-    if(image){
-      formData.append(
-        "image",
-        image
-      );
-    }
+    const formData = new FormData(e.currentTarget);
 
     onSave(formData);
   };
 
+  const formKey = service?.id ? `edit-${service.id}` : "new";
+
   return (
-
-    <div
-      className="modal fade"
-      id="serviceModal"
-      tabIndex={-1}
-    >
-
+    <div className="modal fade" id="serviceModal" tabIndex={-1}>
       <div className="modal-dialog modal-lg">
-
         <div className="modal-content">
-
           <div className="modal-header">
-
-            <h5>
-
-              {
-                service
-                ? "Modifier"
-                : "Ajouter"
-              }
-
-              {" "}Service
-
-            </h5>
-
+            <h5>{service ? "Modifier" : "Ajouter"} Service</h5>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-          >
-
+          <form key={formKey} onSubmit={handleSubmit}>
             <div className="modal-body">
-
               <input
                 className="form-control mb-3"
+                name="titre"
                 placeholder="Titre"
-                value={titre}
-                onChange={(e)=>
-                  setTitre(
-                    e.target.value
-                  )
-                }
+                defaultValue={service?.titre ?? ""}
               />
 
               <textarea
                 className="form-control mb-3"
                 rows={4}
+                name="description"
                 placeholder="Description"
-                value={description}
-                onChange={(e)=>
-                  setDescription(
-                    e.target.value
-                  )
-                }
+                defaultValue={service?.description ?? ""}
               />
 
               <input
                 type="number"
                 className="form-control mb-3"
+                name="prix"
                 placeholder="Prix"
-                value={prix}
-                onChange={(e)=>
-                  setPrix(
-                    e.target.value
-                  )
-                }
+                defaultValue={service?.prix ?? ""}
               />
 
               <select
                 className="form-select mb-3"
-                value={categorieId}
-                onChange={(e)=>
-                  setCategorieId(
-                    e.target.value
-                  )
-                }
+                name="categorie_id"
+                defaultValue={service?.categorie_id ?? ""}
               >
-
-                <option value="">
-                  Choisir catégorie
-                </option>
-
-                {categories.map(
-                  (cat:any)=>(
-                  <option
-                    key={cat.id}
-                    value={cat.id}
-                  >
+                <option value="">Choisir catégorie</option>
+                {categories.map((cat: Category) => (
+                  <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
                 ))}
-
               </select>
 
-              <input
-                type="file"
-                className="form-control"
-                onChange={(e)=>
-                  setImage(
-                    e.target.files?.[0]
-                    || null
-                  )
-                }
-              />
-
+              <input type="file" className="form-control" name="image" />
             </div>
 
             <div className="modal-footer">
-
-              <button
-                className="btn btn-primary"
-              >
-                Enregistrer
-              </button>
-
+              <button className="btn btn-primary">Enregistrer</button>
             </div>
-
           </form>
-
         </div>
-
       </div>
-
     </div>
   );
 };

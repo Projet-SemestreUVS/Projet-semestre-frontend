@@ -23,6 +23,7 @@ import Statistiques from "./pages/admin/Statistiques";
 import Utilisateurs from "./pages/admin/Utilisateurs";
 import Categories from "./pages/admin/Categories";
 import ServicesAdmin from "./pages/admin/Services";
+import CreateService from "./pages/admin/CreateService";
 import ReservationsAdmin from "./pages/admin/ReservationsAdmin";
 import { Avis } from "./pages/admin/Avis";
 
@@ -58,33 +59,99 @@ function App() {
 
         {/* ADMIN */}
         <Route element={<AdminRoute />}>
-          <Route path="/admin/statistiques" element={<Statistiques />} />
-          <Route path="/admin/users" element={<Utilisateurs />} />
-          <Route path="/admin/categories" element={<Categories />} />
-          <Route path="/admin/services" element={<ServicesAdmin />} />
-          <Route path="/admin/reservations" element={<ReservationsAdmin />} />
-          <Route path="/admin/reviews" element={<Avis />} />
+          <Route
+            path="/admin/statistiques"
+            element={<Statistiques />}
+          />
+
+          <Route
+            path="/admin/users"
+            element={<Utilisateurs />}
+          />
+
+          <Route
+            path="/admin/categories"
+            element={<Categories />}
+          />
+
+          <Route
+            path="/admin/services"
+            element={<ServicesAdmin />}
+          />
+
+          {/* AJOUT SERVICE */}
+          <Route
+            path="/admin/services/create"
+            element={<CreateService />}
+          />
+
+          <Route
+            path="/admin/reservations"
+            element={<ReservationsAdmin />}
+          />
+
+          <Route
+            path="/admin/reviews"
+            element={<Avis />}
+          />
         </Route>
 
         {/* PRESTATAIRE */}
         <Route element={<PrestataireRoute />}>
-          <Route path="/prestataire/dashboard" element={<DashboardPrestataire />} />
-          <Route path="/prestataire/services" element={<MesServices />} />
+          <Route
+            path="/prestataire/dashboard"
+            element={<DashboardPrestataire />}
+          />
+
+          <Route
+            path="/prestataire/services"
+            element={<MesServices />}
+          />
         </Route>
 
         {/* DEMANDEUR */}
         <Route element={<DemandeurRoute />}>
-          <Route path="/demandeur/dashboard" element={<DashboardDemandeur />} />
-          <Route path="/demandeur/reservations" element={<MesReservations />} />
-          <Route path="/demandeur/reservation/nouvelle" element={<FaireReservation />} />
-          <Route path="/demandeur/avis" element={<MesAvis />} />
-          <Route path="/demandeur/messages" element={<Messages />} />
-          <Route path="/demandeur/notifications" element={<Notifications />} />
-          <Route path="/demandeur/profile" element={<Profile />} />
+          <Route
+            path="/demandeur/dashboard"
+            element={<DashboardDemandeur />}
+          />
+
+          <Route
+            path="/demandeur/reservations"
+            element={<MesReservations />}
+          />
+
+          <Route
+            path="/demandeur/reservation/nouvelle"
+            element={<FaireReservation />}
+          />
+
+          <Route
+            path="/demandeur/avis"
+            element={<MesAvis />}
+          />
+
+          <Route
+            path="/demandeur/messages"
+            element={<Messages />}
+          />
+
+          <Route
+            path="/demandeur/notifications"
+            element={<Notifications />}
+          />
+
+          <Route
+            path="/demandeur/profile"
+            element={<Profile />}
+          />
         </Route>
 
         {/* 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
 
       </Routes>
     </BrowserRouter>
