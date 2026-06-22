@@ -1,33 +1,113 @@
 // src/services/adminService.ts
 import api from './api';
 
-// Export individuel des fonctions
-export const getUsers = () => api.get('/admin/users');
-export const getUser = (id: number) => api.get(`/admin/users/${id}`);
-export const updateUser = (id: number, data: any) => api.put(`/admin/users/${id}`, data);
-export const deleteUser = (id: number) => api.delete(`/admin/users/${id}`);
+// Fonctions de la version distante (avec async/await)
+export const getStats = async () => {
+  const response = await api.get("/admin/statistiques");
+  return response.data;
+};
 
-export const getServices = () => api.get('/admin/services');
-export const createService = (data: any) => api.post('/admin/services', data);
-export const updateService = (id: number, data: any) => api.put(`/admin/services/${id}`, data);
-export const deleteService = (id: number) => api.delete(`/admin/services/${id}`);
+export const getUsers = async () => {
+  const response = await api.get("/users");
+  return response.data;
+};
 
-export const getCategories = () => api.get('/admin/categories');
-export const createCategory = (data: any) => api.post('/admin/categories', data);
-export const updateCategory = (id: number, data: any) => api.put(`/admin/categories/${id}`, data);
-export const deleteCategory = (id: number) => api.delete(`/admin/categories/${id}`);
+export const getUser = async (id: number) => {
+  const response = await api.get(`/users/${id}`);
+  return response.data;
+};
 
-export const getReviews = () => api.get('/admin/reviews');
-export const deleteReview = (id: number) => api.delete(`/admin/reviews/${id}`);
+export const createUser = async (userData: any) => {
+  const response = await api.post("/users", userData);
+  return response.data;
+};
 
-export const getReservations = () => api.get('/admin/reservations');
-export const updateReservation = (id: number, data: any) => api.put(`/admin/reservations/${id}`, data);
-export const deleteReservation = (id: number) => api.delete(`/admin/reservations/${id}`);
+export const updateUser = async (id: number, userData: any) => {
+  const response = await api.put(`/users/${id}`, userData);
+  return response.data;
+};
+
+export const deleteUser = async (id: number) => {
+  const response = await api.delete(`/users/${id}`);
+  return response.data;
+};
+
+export const getServices = async () => {
+  const response = await api.get("/services");
+  return response.data;
+};
+
+export const createService = async (data: any) => {
+  const response = await api.post("/admin/services", data);
+  return response.data;
+};
+
+export const updateService = async (id: number, data: any) => {
+  const response = await api.put(`/admin/services/${id}`, data);
+  return response.data;
+};
+
+export const deleteService = async (id: number) => {
+  const response = await api.delete(`/admin/services/${id}`);
+  return response.data;
+};
+
+export const getCategories = async () => {
+  const response = await api.get("/categories");
+  return response.data;
+};
+
+export const createCategory = async (data: any) => {
+  const response = await api.post("/admin/categories", data);
+  return response.data;
+};
+
+export const updateCategory = async (id: number, data: any) => {
+  const response = await api.put(`/admin/categories/${id}`, data);
+  return response.data;
+};
+
+export const deleteCategory = async (id: number) => {
+  const response = await api.delete(`/admin/categories/${id}`);
+  return response.data;
+};
+
+export const getReviews = async () => {
+  const response = await api.get("/admin/reviews");
+  return response.data;
+};
+
+export const deleteReview = async (id: number) => {
+  const response = await api.delete(`/admin/reviews/${id}`);
+  return response.data;
+};
+
+export const getReservations = async () => {
+  const response = await api.get("/reservations");
+  return response.data;
+};
+
+export const updateReservation = async (id: number, data: any) => {
+  const response = await api.put(`/admin/reservations/${id}`, data);
+  return response.data;
+};
+
+export const deleteReservation = async (id: number) => {
+  const response = await api.delete(`/admin/reservations/${id}`);
+  return response.data;
+};
+
+export const getAvis = async () => {
+  const response = await api.get("/avis");
+  return response.data;
+};
 
 // Export par défaut pour compatibilité
 const adminService = {
+  getStats,
   getUsers,
   getUser,
+  createUser,
   updateUser,
   deleteUser,
   getServices,
@@ -43,39 +123,7 @@ const adminService = {
   getReservations,
   updateReservation,
   deleteReservation,
+  getAvis,
 };
 
 export default adminService;
-
-
-// src/services/adminService.ts
-// import api from './api';
-
-// export const adminService = {
-//   // Utilisateurs
-//   getUsers: () => api.get('/admin/users'),
-//   getUser: (id: number) => api.get(`/admin/users/${id}`),
-//   updateUser: (id: number, data: any) => api.put(`/admin/users/${id}`, data),
-//   deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
-  
-//   // Services
-//   getServices: () => api.get('/admin/services'),
-//   createService: (data: any) => api.post('/admin/services', data),
-//   updateService: (id: number, data: any) => api.put(`/admin/services/${id}`, data),
-//   deleteService: (id: number) => api.delete(`/admin/services/${id}`),
-  
-//   // Catégories
-//   getCategories: () => api.get('/admin/categories'),
-//   createCategory: (data: any) => api.post('/admin/categories', data),
-//   updateCategory: (id: number, data: any) => api.put(`/admin/categories/${id}`, data),
-//   deleteCategory: (id: number) => api.delete(`/admin/categories/${id}`),
-  
-//   // Avis
-//   getReviews: () => api.get('/admin/reviews'),
-//   deleteReview: (id: number) => api.delete(`/admin/reviews/${id}`),
-  
-//   // Réservations
-//   getReservations: () => api.get('/admin/reservations'),
-//   updateReservation: (id: number, data: any) => api.put(`/admin/reservations/${id}`, data),
-//   deleteReservation: (id: number) => api.delete(`/admin/reservations/${id}`),
-// };
