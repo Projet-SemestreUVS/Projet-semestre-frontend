@@ -211,7 +211,7 @@ const Home = () => {
       <Navbar />
 
       {/* SECTION HERO */}
-      <section className="hero-section">
+      <section className="hero-section my-5">
         <div className="hero-backdrop" />
         <div className="container-custom hero-shell">
           <div className="row align-items-center min-vh-75 gy-5">
