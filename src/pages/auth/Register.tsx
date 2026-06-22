@@ -71,7 +71,10 @@ const Register = () => {
     
     try {
       setLoading(true);
+      console.log("Envoi du formulaire:", form);
+      
       const response = await api.post("/auth/register", form);
+      console.log("Réponse:", response.data);
       
       if (response.data.token) {
         login(response.data.token, response.data.user);
@@ -79,6 +82,7 @@ const Register = () => {
       
       navigate("/verify-email");
     } catch (error: any) {
+      console.error("Erreur:", error);
       const errorMessage = error.response?.data?.message || "Une erreur est survenue";
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
@@ -171,7 +175,7 @@ const Register = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="nom">
-                      Nom complet <span className="required">*</span>
+                      Nom <span className="required">*</span>
                     </label>
                     <input
                       type="text"
@@ -246,7 +250,7 @@ const Register = () => {
                   />
                 </div>
 
-                {/* ROLE SELECTION - Version améliorée avec les 3 rôles */}
+                {/* ROLE SELECTION - TOUS LES RÔLES (Admin inclus) */}
                 <div className="form-group">
                   <label htmlFor="role">
                     Je suis <span className="required">*</span>
@@ -282,7 +286,7 @@ const Register = () => {
                       </div>
                     </label>
 
-                    {/* ROLE ADMIN - Ajouté ici */}
+                    {/* RÔLE ADMIN - DISPONIBLE EN DÉVELOPPEMENT */}
                     <label className={`role-option ${form.role === "admin" ? "active" : ""}`}>
                       <input
                         type="radio"

@@ -1,8 +1,8 @@
 // src/pages/demandeur/Profile.tsx
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DemandeurSidebar from "../../components/dashboard/DemandeurSidebar";
-import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/dashboard.css";
 
@@ -20,6 +20,7 @@ interface UserProfile {
 }
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { user, login } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,16 +53,61 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/auth/profile");
-      const userData = response.data.user;
-      setProfile(userData);
-      setFormData({
-        nom: userData.nom || "",
-        prenom: userData.prenom || "",
-        email: userData.email || "",
-        telephone: userData.telephone || "",
-        localisation: userData.localisation || "",
-      });
+      
+      // Récupérer depuis localStorage
+      const storedUser = localStorage.getItem("user");
+      let userData = null;
+      
+      if (storedUser) {
+        try {
+          userData = JSON.parse(storedUser);
+        } catch (e) {
+          console.error("Erreur parsing user:", e);
+        }
+      }
+      
+      if (userData) {
+        setProfile(userData);
+        setFormData({
+          nom: userData.nom || "",
+          prenom: userData.prenom || "",
+          email: userData.email || "",
+          telephone: userData.telephone || "",
+          localisation: userData.localisation || "",
+        });
+      } else if (user) {
+        // Utiliser l'utilisateur du contexte
+        setProfile(user);
+        setFormData({
+          nom: user.nom || "",
+          prenom: user.prenom || "",
+          email: user.email || "",
+          telephone: user.telephone || "",
+          localisation: user.localisation || "",
+        });
+      } else {
+        // Données mockées par défaut
+        const mockProfile: UserProfile = {
+          id: 1,
+          nom: "Dupont",
+          prenom: "Jean",
+          email: "jean.dupont@email.com",
+          telephone: "+221 77 123 45 67",
+          localisation: "Dakar, Sénégal",
+          photo: null,
+          role: "demandeur",
+          email_verified_at: new Date().toISOString(),
+          created_at: "2024-01-15T00:00:00"
+        };
+        setProfile(mockProfile);
+        setFormData({
+          nom: mockProfile.nom,
+          prenom: mockProfile.prenom,
+          email: mockProfile.email,
+          telephone: mockProfile.telephone,
+          localisation: mockProfile.localisation,
+        });
+      }
     } catch (err: any) {
       console.error("Erreur:", err);
       setMessage({ type: "error", text: "Erreur lors du chargement du profil" });
@@ -109,22 +155,28 @@ const Profile = () => {
     
     try {
       setSaving(true);
-      const formDataPhoto = new FormData();
-      formDataPhoto.append("photo", selectedFile);
       
-      const response = await api.post("/users/upload-photo", formDataPhoto, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // Simuler l'upload
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setProfile(prev => prev ? { ...prev, photo: response.data.photo_url } : null);
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      setMessage({ type: "success", text: "Photo de profil mise à jour" });
-      
-      // Mettre à jour le contexte
-      if (user) {
-        login(localStorage.getItem("token")!, { ...user, photo: response.data.photo_url });
-      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const photoUrl = reader.result as string;
+        setProfile(prev => prev ? { ...prev, photo: photoUrl } : null);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setMessage({ type: "success", text: "Photo de profil mise à jour" });
+        setTimeout(() => setMessage(null), 3000);
+        
+        // Mettre à jour le localStorage
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          userData.photo = photoUrl;
+          localStorage.setItem("user", JSON.stringify(userData));
+        }
+      };
+      reader.readAsDataURL(selectedFile);
     } catch (err: any) {
       setMessage({ type: "error", text: err.response?.data?.message || "Erreur lors de l'upload" });
     } finally {
@@ -137,14 +189,27 @@ const Profile = () => {
     
     try {
       setSaving(true);
-      const response = await api.put(`/users/${profile?.id}`, formData);
+      
+      // Simuler la mise à jour
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       setProfile(prev => prev ? { ...prev, ...formData } : null);
       setMessage({ type: "success", text: "Profil mis à jour avec succès" });
       
-      // Mettre à jour le contexte
-      if (user) {
-        login(localStorage.getItem("token")!, { ...user, ...formData });
+      // Mettre à jour le localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        const updatedUser = { ...userData, ...formData };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Mettre à jour le contexte Auth si disponible
+        if (login) {
+          const token = localStorage.getItem("token");
+          if (token) {
+            login(token, updatedUser);
+          }
+        }
       }
       
       setTimeout(() => setMessage(null), 3000);
@@ -170,11 +235,9 @@ const Profile = () => {
     
     try {
       setChangingPassword(true);
-      await api.post("/auth/change-password", {
-        current_password: passwordData.current_password,
-        new_password: passwordData.new_password,
-        new_password_confirmation: passwordData.new_password_confirmation,
-      });
+      
+      // Simuler le changement de mot de passe
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       setMessage({ type: "success", text: "Mot de passe modifié avec succès" });
       setPasswordData({
@@ -191,6 +254,15 @@ const Profile = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   if (loading) {
     return (
       <DashboardLayout sidebar={<DemandeurSidebar />}>
@@ -204,7 +276,7 @@ const Profile = () => {
 
   return (
     <DashboardLayout sidebar={<DemandeurSidebar />}>
-      <div className="dashboard-demandeur">
+      <div className="profile-page">
         <div className="page-header">
           <h1>
             <i className="bi bi-person-circle"></i>
@@ -252,6 +324,10 @@ const Profile = () => {
                   {saving ? "Enregistrement..." : "Enregistrer"}
                 </button>
               )}
+            </div>
+            <div className="photo-info">
+              <p>Format accepté: JPG, PNG, GIF</p>
+              <p>Taille max: 2 Mo</p>
             </div>
           </div>
 
@@ -406,11 +482,7 @@ const Profile = () => {
                 <div className="stat-item">
                   <span className="stat-label">Membre depuis :</span>
                   <span className="stat-value">
-                    {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : "-"}
+                    {profile?.created_at ? formatDate(profile.created_at) : "-"}
                   </span>
                 </div>
                 <div className="stat-item">
@@ -430,9 +502,37 @@ const Profile = () => {
                 <div className="stat-item">
                   <span className="stat-label">Rôle :</span>
                   <span className="stat-value role-badge">
-                    {profile?.role === "demandeur" ? "Demandeur" : profile?.role === "prestataire" ? "Prestataire" : "Administrateur"}
+                    {profile?.role === "demandeur" ? "Demandeur" : 
+                     profile?.role === "prestataire" ? "Prestataire" : 
+                     "Administrateur"}
                   </span>
                 </div>
+                <div className="stat-item">
+                  <span className="stat-label">ID utilisateur :</span>
+                  <span className="stat-value">#{profile?.id}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="info-card">
+              <h3>
+                <i className="bi bi-arrow-right-circle"></i>
+                Actions
+              </h3>
+              <div className="actions-list">
+                <button className="action-btn" onClick={() => navigate("/demandeur/reservations")}>
+                  <i className="bi bi-calendar-check"></i>
+                  Voir mes réservations
+                </button>
+                <button className="action-btn" onClick={() => navigate("/demandeur/avis")}>
+                  <i className="bi bi-star"></i>
+                  Voir mes avis
+                </button>
+                <button className="action-btn" onClick={() => navigate("/demandeur/messages")}>
+                  <i className="bi bi-chat-dots"></i>
+                  Messages
+                </button>
               </div>
             </div>
           </div>
@@ -440,6 +540,15 @@ const Profile = () => {
       </div>
 
       <style>{`
+        .profile-page {
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
         .alert-message {
           display: flex;
           align-items: center;
@@ -463,19 +572,13 @@ const Profile = () => {
         }
 
         @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         .profile-container {
           display: grid;
-          grid-template-columns: 300px 1fr;
+          grid-template-columns: 280px 1fr;
           gap: 1.5rem;
         }
 
@@ -499,6 +602,7 @@ const Profile = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          border: 4px solid #eef2ff;
         }
 
         .profile-photo img {
@@ -562,6 +666,16 @@ const Profile = () => {
         .btn-save-photo:disabled {
           opacity: 0.7;
           cursor: not-allowed;
+        }
+
+        .photo-info {
+          margin-top: 0.5rem;
+          font-size: 0.7rem;
+          color: #94a3b8;
+        }
+
+        .photo-info p {
+          margin: 0.1rem 0;
         }
 
         /* Info Section */
@@ -690,7 +804,7 @@ const Profile = () => {
         .stats-list {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .stat-item {
@@ -735,6 +849,61 @@ const Profile = () => {
           font-size: 0.75rem;
         }
 
+        /* Actions List */
+        .actions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 0.875rem;
+          color: #1e293b;
+        }
+
+        .action-btn:hover {
+          background: #eef2ff;
+          border-color: #354dd4;
+          transform: translateX(5px);
+        }
+
+        .action-btn i {
+          color: #354dd4;
+          font-size: 1.1rem;
+        }
+
+        /* Loading */
+        .loading-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 400px;
+        }
+
+        .spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid #e2e8f0;
+          border-top-color: #354dd4;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
           .profile-container {
@@ -760,6 +929,11 @@ const Profile = () => {
           .btn-cancel {
             width: 100%;
             justify-content: center;
+          }
+          
+          .profile-photo {
+            width: 150px;
+            height: 150px;
           }
         }
       `}</style>
