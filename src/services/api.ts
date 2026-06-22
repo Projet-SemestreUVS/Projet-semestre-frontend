@@ -13,13 +13,14 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
-<<<<<<< HEAD
 );
 
 // Intercepteur pour gérer les erreurs
@@ -31,10 +32,9 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
-=======
->>>>>>> b30279c2fe5e33706b3c20578bce318aa335756d
 );
 
 export default api;
