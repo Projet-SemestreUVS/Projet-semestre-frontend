@@ -1,8 +1,7 @@
-// src/pages/demandeur/Messages.tsx
+// src/pages/prestataire/Messages.tsx
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import DemandeurSidebar from "../../components/dashboard/DemandeurSidebar";
-import api from "../../services/api";
+import PrestataireSidebar from "../../components/dashboard/PrestataireSidebar";
 import "../../styles/dashboard.css";
 
 interface Message {
@@ -12,31 +11,21 @@ interface Message {
   contenu: string;
   created_at: string;
   lu: boolean;
-  sender?: {
-    id: number;
-    nom: string;
-    prenom: string;
-    role: string;
-    photo?: string;
-  };
-  receiver?: {
-    id: number;
-    nom: string;
-    prenom: string;
-    role: string;
-    photo?: string;
-  };
+  sender_nom?: string;
+  sender_prenom?: string;
+  receiver_nom?: string;
+  receiver_prenom?: string;
 }
 
 interface Conversation {
-  userId: number;
+  id: number;
   nom: string;
   prenom: string;
-  role: string;
+  email: string;
   dernierMessage: string;
   dernierMessageDate: string;
   nonLu: number;
-  photo?: string;
+  avatar?: string;
 }
 
 const Messages = () => {
@@ -48,16 +37,15 @@ const Messages = () => {
   const [sending, setSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [prestataireInfo, setPrestataireInfo] = useState({ id: 1, nom: "Prestataire", prenom: "John" });
 
   useEffect(() => {
-    fetchUserInfo();
-    fetchConversations();
+    loadConversations();
   }, []);
 
   useEffect(() => {
     if (selectedUser) {
-      fetchMessages(selectedUser.userId);
+      loadMessages(selectedUser.id);
     }
   }, [selectedUser]);
 
@@ -69,108 +57,141 @@ const Messages = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const fetchUserInfo = async () => {
-    try {
-      const response = await api.get("/auth/profile");
-      setUserInfo(response.data.user);
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
+  const loadConversations = () => {
+    setLoading(true);
+    
+    // Données mockées pour les conversations du prestataire
+    const mockConversations: Conversation[] = [
+      {
+        id: 1,
+        nom: "Dupont",
+        prenom: "Jean",
+        email: "jean.dupont@email.com",
+        dernierMessage: "Bonjour, quand pouvez-vous intervenir ?",
+        dernierMessageDate: "2024-06-15T10:30:00",
+        nonLu: 2,
+      },
+      {
+        id: 2,
+        nom: "Lambert",
+        prenom: "Marie",
+        email: "marie.lambert@email.com",
+        dernierMessage: "Merci pour votre intervention !",
+        dernierMessageDate: "2024-06-14T14:20:00",
+        nonLu: 0,
+      },
+      {
+        id: 3,
+        nom: "Diop",
+        prenom: "Abdoulaye",
+        email: "abdoulaye.diop@email.com",
+        dernierMessage: "Je confirme ma réservation pour demain",
+        dernierMessageDate: "2024-06-13T09:15:00",
+        nonLu: 1,
+      },
+      {
+        id: 4,
+        nom: "Martin",
+        prenom: "Sophie",
+        email: "sophie.martin@email.com",
+        dernierMessage: "Pouvez-vous me rappeler ?",
+        dernierMessageDate: "2024-06-12T16:45:00",
+        nonLu: 0,
+      },
+    ];
+
+    setConversations(mockConversations);
+    setLoading(false);
   };
 
-  const fetchConversations = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/messages/conversations");
-      console.log("Conversations:", response.data);
-      
-      let conversationsData = [];
-      if (response.data.data) {
-        conversationsData = response.data.data;
-      } else if (Array.isArray(response.data)) {
-        conversationsData = response.data;
-      } else if (response.data.conversations) {
-        conversationsData = response.data.conversations;
-      }
-      
-      setConversations(conversationsData);
-      
-      // Sélectionner la première conversation par défaut
-      if (conversationsData.length > 0 && !selectedUser) {
-        setSelectedUser(conversationsData[0]);
-      }
-    } catch (err: any) {
-      console.error("Erreur:", err);
-    } finally {
-      setLoading(false);
-    }
+  const loadMessages = (userId: number) => {
+    // Données mockées pour les messages avec l'utilisateur sélectionné
+    const mockMessages: Message[] = [
+      {
+        id: 1,
+        sender_id: userId,
+        receiver_id: prestataireInfo.id,
+        contenu: "Bonjour, je suis intéressé par votre service de plomberie",
+        created_at: "2024-06-15T09:00:00",
+        lu: true,
+        sender_nom: "Dupont",
+        sender_prenom: "Jean",
+      },
+      {
+        id: 2,
+        sender_id: prestataireInfo.id,
+        receiver_id: userId,
+        contenu: "Bonjour, merci pour votre message. Quand souhaitez-vous intervenir ?",
+        created_at: "2024-06-15T09:30:00",
+        lu: true,
+        receiver_nom: "Dupont",
+        receiver_prenom: "Jean",
+      },
+      {
+        id: 3,
+        sender_id: userId,
+        receiver_id: prestataireInfo.id,
+        contenu: "Je suis disponible demain matin, est-ce possible ?",
+        created_at: "2024-06-15T10:00:00",
+        lu: false,
+        sender_nom: "Dupont",
+        sender_prenom: "Jean",
+      },
+      {
+        id: 4,
+        sender_id: prestataireInfo.id,
+        receiver_id: userId,
+        contenu: "Oui, je peux passer demain à 10h. L'adresse ?",
+        created_at: "2024-06-15T10:15:00",
+        lu: true,
+        receiver_nom: "Dupont",
+        receiver_prenom: "Jean",
+      },
+    ];
+
+    setMessages(mockMessages);
   };
 
-  const fetchMessages = async (userId: number) => {
-    try {
-      const response = await api.get(`/messages/user/${userId}`);
-      console.log("Messages:", response.data);
-      
-      let messagesData = [];
-      if (response.data.data) {
-        messagesData = response.data.data;
-      } else if (Array.isArray(response.data)) {
-        messagesData = response.data;
-      } else if (response.data.messages) {
-        messagesData = response.data.messages;
-      }
-      
-      setMessages(messagesData);
-    } catch (err: any) {
-      console.error("Erreur:", err);
-    }
-  };
-
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedUser) return;
     
-    try {
-      setSending(true);
-      const response = await api.post("/messages", {
-        receiver_id: selectedUser.userId,
-        contenu: newMessage
-      });
-      
-      const newMsg = response.data.data || response.data;
-      setMessages(prev => [...prev, newMsg]);
-      setNewMessage("");
-      
-      // Mettre à jour la dernière conversation
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.userId === selectedUser.userId
-            ? { ...conv, dernierMessage: newMessage, dernierMessageDate: new Date().toISOString() }
-            : conv
-        )
-      );
-      
-      scrollToBottom();
-    } catch (err: any) {
-      console.error("Erreur:", err);
-      alert(err.response?.data?.message || "Erreur lors de l'envoi du message");
-    } finally {
-      setSending(false);
-    }
+    setSending(true);
+    
+    // Créer un nouveau message
+    const newMsg: Message = {
+      id: messages.length + 1,
+      sender_id: prestataireInfo.id,
+      receiver_id: selectedUser.id,
+      contenu: newMessage,
+      created_at: new Date().toISOString(),
+      lu: false,
+    };
+    
+    setMessages([...messages, newMsg]);
+    setNewMessage("");
+    
+    // Mettre à jour la conversation
+    const updatedConversations = conversations.map(conv =>
+      conv.id === selectedUser.id
+        ? { ...conv, dernierMessage: newMessage, dernierMessageDate: new Date().toISOString() }
+        : conv
+    );
+    setConversations(updatedConversations);
+    
+    setSending(false);
+    scrollToBottom();
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (days === 0) {
+    if (diffDays === 0) {
       return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    } else if (days === 1) {
+    } else if (diffDays === 1) {
       return "Hier";
-    } else if (days < 7) {
-      return `${days} jours`;
     } else {
       return date.toLocaleDateString('fr-FR');
     }
@@ -182,7 +203,7 @@ const Messages = () => {
 
   if (loading) {
     return (
-      <DashboardLayout sidebar={<DemandeurSidebar />}>
+      <DashboardLayout sidebar={<PrestataireSidebar />}>
         <div className="loading-container">
           <div className="spinner"></div>
           <p>Chargement des messages...</p>
@@ -192,14 +213,14 @@ const Messages = () => {
   }
 
   return (
-    <DashboardLayout sidebar={<DemandeurSidebar />}>
-      <div className="dashboard-demandeur">
+    <DashboardLayout sidebar={<PrestataireSidebar />}>
+      <div className="dashboard-prestataire">
         <div className="page-header">
           <h1>
             <i className="bi bi-chat-dots"></i>
             Messages
           </h1>
-          <p>Discutez avec vos prestataires</p>
+          <p>Discutez avec vos clients</p>
         </div>
 
         <div className="messages-container">
@@ -209,7 +230,7 @@ const Messages = () => {
               <i className="bi bi-search"></i>
               <input
                 type="text"
-                placeholder="Rechercher une conversation..."
+                placeholder="Rechercher un client..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -223,8 +244,8 @@ const Messages = () => {
             ) : (
               filteredConversations.map((conv) => (
                 <div
-                  key={conv.userId}
-                  className={`conversation-item ${selectedUser?.userId === conv.userId ? "active" : ""}`}
+                  key={conv.id}
+                  className={`conversation-item ${selectedUser?.id === conv.id ? "active" : ""}`}
                   onClick={() => setSelectedUser(conv)}
                 >
                   <div className="conversation-avatar">
@@ -234,7 +255,6 @@ const Messages = () => {
                   <div className="conversation-info">
                     <div className="conversation-name">
                       {conv.prenom} {conv.nom}
-                      <span className="conversation-role">{conv.role === "prestataire" ? "Prestataire" : conv.role}</span>
                     </div>
                     <div className="conversation-last-message">{conv.dernierMessage}</div>
                   </div>
@@ -248,30 +268,26 @@ const Messages = () => {
           <div className="chat-area">
             {selectedUser ? (
               <>
-                {/* En-tête du chat */}
                 <div className="chat-header">
                   <div className="chat-user-info">
                     <i className="bi bi-person-circle"></i>
                     <div>
                       <h3>{selectedUser.prenom} {selectedUser.nom}</h3>
-                      <span className="user-role-badge">
-                        {selectedUser.role === "prestataire" ? "Prestataire" : selectedUser.role}
-                      </span>
+                      <span className="user-email">{selectedUser.email}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Messages */}
                 <div className="chat-messages">
                   {messages.length === 0 ? (
                     <div className="no-messages">
                       <i className="bi bi-chat-dots"></i>
-                      <p>Aucun message pour le moment</p>
+                      <p>Aucun message</p>
                       <p className="small">Soyez le premier à envoyer un message</p>
                     </div>
                   ) : (
                     messages.map((message) => {
-                      const isOwnMessage = message.sender_id === userInfo?.id;
+                      const isOwnMessage = message.sender_id === prestataireInfo.id;
                       return (
                         <div
                           key={message.id}
@@ -288,7 +304,6 @@ const Messages = () => {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Formulaire d'envoi */}
                 <form onSubmit={handleSendMessage} className="chat-input-area">
                   <input
                     type="text"
@@ -297,7 +312,7 @@ const Messages = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                   />
                   <button type="submit" disabled={sending || !newMessage.trim()}>
-                    {sending ? <i className="bi bi-hourglass-split"></i> : <i className="bi bi-send"></i>}
+                    <i className="bi bi-send"></i>
                   </button>
                 </form>
               </>
@@ -305,7 +320,7 @@ const Messages = () => {
               <div className="no-conversation-selected">
                 <i className="bi bi-chat-dots"></i>
                 <h3>Sélectionnez une conversation</h3>
-                <p>Choisissez un prestataire pour commencer à discuter</p>
+                <p>Choisissez un client pour commencer à discuter</p>
               </div>
             )}
           </div>
@@ -323,9 +338,8 @@ const Messages = () => {
           min-height: 600px;
         }
 
-        /* Conversations List */
         .conversations-list {
-          width: 350px;
+          width: 320px;
           border-right: 1px solid #e2e8f0;
           background: white;
           display: flex;
@@ -367,7 +381,6 @@ const Messages = () => {
 
         .conversation-item.active {
           background: #eef2ff;
-          border-left: 3px solid #354dd4;
         }
 
         .conversation-avatar {
@@ -395,36 +408,21 @@ const Messages = () => {
           font-size: 0.6rem;
           padding: 0.125rem 0.375rem;
           border-radius: 10px;
-          min-width: 18px;
-          text-align: center;
         }
 
         .conversation-info {
           flex: 1;
-          min-width: 0;
         }
 
         .conversation-name {
           font-weight: 600;
           font-size: 0.875rem;
           color: #1e293b;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-wrap: wrap;
-        }
-
-        .conversation-role {
-          font-size: 0.65rem;
-          font-weight: 500;
-          color: #354dd4;
-          background: #eef2ff;
-          padding: 0.125rem 0.375rem;
-          border-radius: 10px;
+          margin-bottom: 0.25rem;
         }
 
         .conversation-last-message {
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           color: #64748b;
           white-space: nowrap;
           overflow: hidden;
@@ -436,7 +434,6 @@ const Messages = () => {
           color: #94a3b8;
         }
 
-        /* Chat Area */
         .chat-area {
           flex: 1;
           display: flex;
@@ -467,12 +464,11 @@ const Messages = () => {
           margin: 0;
         }
 
-        .user-role-badge {
+        .user-email {
           font-size: 0.7rem;
-          color: #22c55e;
+          color: #64748b;
         }
 
-        /* Messages */
         .chat-messages {
           flex: 1;
           padding: 1.5rem;
@@ -480,7 +476,7 @@ const Messages = () => {
           display: flex;
           flex-direction: column;
           gap: 1rem;
-          max-height: calc(100vh - 300px);
+          max-height: 500px;
           min-height: 400px;
         }
 
@@ -500,7 +496,6 @@ const Messages = () => {
           max-width: 70%;
           padding: 0.75rem 1rem;
           border-radius: 18px;
-          position: relative;
         }
 
         .own-message .message-bubble {
@@ -528,7 +523,6 @@ const Messages = () => {
           text-align: right;
         }
 
-        /* Input Area */
         .chat-input-area {
           padding: 1rem 1.5rem;
           background: white;
@@ -558,9 +552,6 @@ const Messages = () => {
           border: none;
           border-radius: 50%;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           transition: all 0.3s ease;
         }
 
@@ -574,48 +565,17 @@ const Messages = () => {
           cursor: not-allowed;
         }
 
-        /* Empty States */
-        .empty-conversations {
+        .empty-conversations, .no-messages, .no-conversation-selected {
           text-align: center;
           padding: 2rem;
-          color: #94a3b8;
-        }
-
-        .empty-conversations i {
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .no-messages {
-          text-align: center;
-          padding: 2rem;
-          color: #94a3b8;
-        }
-
-        .no-messages i {
-          font-size: 3rem;
-          margin-bottom: 1rem;
-        }
-
-        .no-conversation-selected {
-          text-align: center;
-          padding: 3rem;
           color: #94a3b8;
         }
 
         .no-conversation-selected i {
-          font-size: 4rem;
+          font-size: 3rem;
           margin-bottom: 1rem;
-          color: #cbd5e1;
         }
 
-        .no-conversation-selected h3 {
-          font-size: 1.125rem;
-          color: #1e293b;
-          margin-bottom: 0.5rem;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
           .messages-container {
             flex-direction: column;
@@ -625,10 +585,6 @@ const Messages = () => {
             width: 100%;
             max-height: 300px;
             overflow-y: auto;
-          }
-          
-          .message-bubble {
-            max-width: 85%;
           }
         }
       `}</style>
