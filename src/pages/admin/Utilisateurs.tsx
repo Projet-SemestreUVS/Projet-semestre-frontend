@@ -55,6 +55,7 @@ const Utilisateurs = () => {
       const res = await api.get("/users");
       console.log("Réponse API:", res.data);
       
+
       let usersData = [];
       if (res.data && res.data.data) {
         usersData = res.data.data;
@@ -88,6 +89,7 @@ const Utilisateurs = () => {
   };
 
   const handleSubmit = async () => {
+
     if (!form.nom.trim()) {
       alert("Le nom est requis");
       return;
@@ -117,6 +119,7 @@ const Utilisateurs = () => {
     
     try {
       if (editingUser) {
+
         const updateData = {
           nom: form.nom,
           prenom: form.prenom,
@@ -128,6 +131,7 @@ const Utilisateurs = () => {
         await api.put(`/users/${editingUser.id}`, updateData);
         alert("Utilisateur modifié avec succès");
       } else {
+
         const createData = {
           nom: form.nom,
           prenom: form.prenom,
@@ -366,10 +370,18 @@ const Utilisateurs = () => {
                           </span>
                         </td>
                         <td className="text-center">
-                          <button className="btn btn-sm btn-outline-warning me-2 rounded-circle" onClick={() => openEdit(user)}>
+                          <button
+                            className="btn btn-sm btn-outline-warning me-2 rounded-circle"
+                            onClick={() => openEdit(user)}
+                            title="Modifier"
+                          >
                             <i className="bi bi-pencil"></i>
                           </button>
-                          <button className="btn btn-sm btn-outline-danger rounded-circle" onClick={() => deleteUser(user.id)}>
+                          <button
+                            className="btn btn-sm btn-outline-danger rounded-circle"
+                            onClick={() => deleteUser(user.id)}
+                            title="Supprimer"
+                          >
                             <i className="bi bi-trash"></i>
                           </button>
                         </td>

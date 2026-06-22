@@ -15,7 +15,6 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers = config.headers || {};
-            // Utilisation directe de la propriété Authorization de manière sécurisée
             config.headers.Authorization = `Bearer ${token}`;
         }
 
