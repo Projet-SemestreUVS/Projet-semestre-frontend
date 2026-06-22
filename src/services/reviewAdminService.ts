@@ -1,18 +1,10 @@
 import api from "./api";
 
-export const getReviews = async () => {
-  const response = await api.get(
-    "/admin/reviews"
-  );
-
+export const getAvis = async () => {
+  const response = await api.get("/avis");
   return response.data;
 };
 
-export const deleteReview = async (
-  id:number
-) => {
-
-  return await api.delete(
-    `/admin/reviews/${id}`
-  );
+export const deleteAvis = async (id: number) => {
+ return await api.delete(`/avis/${id}`);
 };
