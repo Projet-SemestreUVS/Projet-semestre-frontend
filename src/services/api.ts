@@ -19,6 +19,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+<<<<<<< HEAD
 );
 
 // Intercepteur pour gérer les erreurs
@@ -32,6 +33,8 @@ api.interceptors.response.use(
     }
     return Promise.reject(error);
   }
+=======
+>>>>>>> b30279c2fe5e33706b3c20578bce318aa335756d
 );
 
 export default api;

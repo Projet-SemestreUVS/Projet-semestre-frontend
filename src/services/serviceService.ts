@@ -1,29 +1,38 @@
 import api from "./api";
 
-export const getServices =
-async (
-  page:number = 1,
-  search:string = "",
-  categorie:string = ""
-) => {
+export const getServices = async () => {
+  const response = await api.get("/services");
+  return response.data;
+};
 
-  const response =
-    await api.get(
-      `/services?page=${page}
-      &search=${search}
-      &categorie_id=${categorie}`
-    );
+export const getService = async (id:number) => {
+  const response = await api.get(`/services/${id}`);
+  return response.data;
+};
+
+export const createService = async (data:any) => {
+  const response = await api.post("/services", data);
+  return response.data;
+};
+
+export const updateService = async (
+  id:number,
+  data:any
+) => {
+  const response = await api.put(
+    `/services/${id}`,
+    data
+  );
 
   return response.data;
 };
 
-export const getService =
-async (id:number) => {
-
-  const response =
-    await api.get(
-      `/services/${id}`
-    );
+export const deleteService = async (
+  id:number
+) => {
+  const response = await api.delete(
+    `/services/${id}`
+  );
 
   return response.data;
 };
