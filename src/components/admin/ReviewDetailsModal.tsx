@@ -1,82 +1,42 @@
-interface Props {
-  review:any;
+interface Avis {
+  id: number;
+  user: { name: string; email: string };
+  service: { titre: string };
+  note: number;
+  commentaire: string;
+  created_at: string;
 }
 
-const ReviewDetailsModal = ({
-  review
-}:Props) => {
+interface ReviewDetailsModalProps {
+  review: Avis;
+  onClose: () => void; // <- il manquait ça
+}
 
-  if(!review) return null;
-
+const ReviewDetailsModal = ({ review, onClose }: ReviewDetailsModalProps) => {
   return (
-
-    <div
-      className="modal fade"
-      id="reviewDetailsModal"
-      tabIndex={-1}
-    >
-
-      <div className="modal-dialog">
-
-        <div className="modal-content">
-
-          <div className="modal-header">
-
-            <h5>
-              Détails Avis
-            </h5>
-
-            <button
-              className="btn-close"
-              data-bs-dismiss="modal"
-            />
-
-          </div>
-
-          <div className="modal-body">
-
-            <p>
-              <strong>
-                Auteur :
-              </strong>
-              {" "}
-              {review.user?.nom}
-            </p>
-
-            <p>
-              <strong>
-                Service :
-              </strong>
-              {" "}
-              {review.service?.titre}
-            </p>
-
-            <p>
-              <strong>
-                Note :
-              </strong>
-              {" "}
-              ⭐ {review.note}/5
-            </p>
-
-            <p>
-              <strong>
-                Commentaire :
-              </strong>
-            </p>
-
-            <div
-              className="alert alert-light"
-            >
-              {review.commentaire}
-            </div>
-
-          </div>
-
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Détails de l'avis</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-black">✕</button>
         </div>
-
+        
+        <div className="space-y-3">
+          <p><strong>Client :</strong> {review.user.name}</p>
+          <p><strong>Email :</strong> {review.user.email}</p>
+          <p><strong>Service :</strong> {review.service.titre}</p>
+          <p><strong>Note :</strong> {review.note}/5 ⭐</p>
+          <p><strong>Commentaire :</strong> {review.commentaire}</p>
+          <p><strong>Date :</strong> {new Date(review.created_at).toLocaleDateString('fr-FR')}</p>
+        </div>
+        
+        <button 
+          onClick={onClose}
+          className="mt-6 w-full bg-gray-200 hover:bg-gray-300 py-2 rounded"
+        >
+          Fermer
+        </button>
       </div>
-
     </div>
   );
 };

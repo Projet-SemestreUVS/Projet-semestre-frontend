@@ -24,7 +24,7 @@ import Utilisateurs from "./pages/admin/Utilisateurs";
 import Categories from "./pages/admin/Categories";
 import ServicesAdmin from "./pages/admin/Services";
 import ReservationsAdmin from "./pages/admin/ReservationsAdmin";
-import { Avis } from "./pages/admin/Avis";
+import Avis from './pages/admin/Avis'
 
 // PRESTATAIRE
 import DashboardPrestataire from "./pages/prestataire/DashboardPrestataire";
