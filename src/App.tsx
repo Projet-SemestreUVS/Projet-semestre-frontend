@@ -29,15 +29,21 @@ import { Avis } from "./pages/admin/Avis";
 // PRESTATAIRE
 import DashboardPrestataire from "./pages/prestataire/DashboardPrestataire";
 import MesServices from "./pages/prestataire/MesServices";
+import AjouterService from "./pages/prestataire/AjouterService";
+import ModifierService from "./pages/prestataire/ModifierService";
+import ReservationsRecues from "./pages/prestataire/ReservationsRecues";
+import MessagesPrestataire from "./pages/prestataire/Messages";
+import NotificationsPrestataire from "./pages/prestataire/Notifications";
+import ProfilePrestataire from "./pages/prestataire/Profile";
 
 // DEMANDEUR
 import DashboardDemandeur from "./pages/demandeur/DashboardDemandeur";
 import MesReservations from "./pages/demandeur/MesReservations";
 import FaireReservation from "./pages/demandeur/FaireReservation";
 import MesAvis from "./pages/demandeur/MesAvis";
-import Messages from "./pages/demandeur/Messages";
-import Notifications from "./pages/demandeur/Notifications";
-import Profile from "./pages/demandeur/Profile";
+import MessagesDemandeur from "./pages/demandeur/Messages";
+import NotificationsDemandeur from "./pages/demandeur/Notifications";
+import ProfileDemandeur from "./pages/demandeur/Profile";
 
 function App() {
   return (
@@ -70,6 +76,12 @@ function App() {
         <Route element={<PrestataireRoute />}>
           <Route path="/prestataire/dashboard" element={<DashboardPrestataire />} />
           <Route path="/prestataire/services" element={<MesServices />} />
+          <Route path="/prestataire/services/ajouter" element={<AjouterService />} />
+          <Route path="/prestataire/services/modifier/:id" element={<ModifierService />} />
+          <Route path="/prestataire/reservations" element={<ReservationsRecues />} />
+          <Route path="/prestataire/messages" element={<MessagesPrestataire />} />
+          <Route path="/prestataire/notifications" element={<NotificationsPrestataire />} />
+          <Route path="/prestataire/profile" element={<ProfilePrestataire />} />
         </Route>
 
         {/* DEMANDEUR */}
@@ -78,9 +90,9 @@ function App() {
           <Route path="/demandeur/reservations" element={<MesReservations />} />
           <Route path="/demandeur/reservation/nouvelle" element={<FaireReservation />} />
           <Route path="/demandeur/avis" element={<MesAvis />} />
-          <Route path="/demandeur/messages" element={<Messages />} />
-          <Route path="/demandeur/notifications" element={<Notifications />} />
-          <Route path="/demandeur/profile" element={<Profile />} />
+          <Route path="/demandeur/messages" element={<MessagesDemandeur />} />
+          <Route path="/demandeur/notifications" element={<NotificationsDemandeur />} />
+          <Route path="/demandeur/profile" element={<ProfileDemandeur />} />
         </Route>
 
         {/* 404 */}
