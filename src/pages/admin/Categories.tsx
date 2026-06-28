@@ -27,38 +27,53 @@ import {
   toast
 } from "react-toastify";
 
-declare var bootstrap: any;
+declare const bootstrap: {
+  Modal: {
+    new (element: HTMLElement): {
+      show: () => void;
+    };
+    getInstance: (
+      element: HTMLElement | null
+    ) => { hide: () => void } | null;
+  };
+};
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 const Categories = () => {
 
   const [categories,
-    setCategories] = useState([]);
+    setCategories] = useState<Category[]>([]);
 
   const [selectedCategory,
     setSelectedCategory] =
-    useState<any>(null);
+    useState<Category | null>(null);
 
   const [search,
     setSearch] =
     useState("");
 
-  useEffect(() => {
-
-    fetchCategories();
-
-  }, []);
-
-  const fetchCategories =
-  async () => {
+  async function fetchCategories() {
 
     const data =
       await getCategories();
 
     setCategories(data);
-  };
+  }
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      await fetchCategories();
+    };
+
+    void loadCategories();
+  }, []);
 
   const handleSave =
-  async (formData:any) => {
+  async (formData: FormData) => {
 
     try {
 
@@ -88,13 +103,16 @@ const Categories = () => {
 
       fetchCategories();
 
-      bootstrap.Modal
-      .getInstance(
+      const categoryModalElement =
         document.getElementById(
           "categoryModal"
+        );
+
+      bootstrap.Modal
+        .getInstance(
+          categoryModalElement
         )
-      )
-      ?.hide();
+        ?.hide();
 
       setSelectedCategory(
         null
@@ -130,7 +148,7 @@ const Categories = () => {
 
   const filteredCategories =
     categories.filter(
-      (category:any) =>
+      (category: Category) =>
         category.name
           .toLowerCase()
           .includes(
@@ -192,11 +210,16 @@ const Categories = () => {
             category
           );
 
-          new bootstrap.Modal(
+          const categoryModalElement =
             document.getElementById(
               "categoryModal"
-            )
-          ).show();
+            );
+
+          if (categoryModalElement) {
+            new bootstrap.Modal(
+              categoryModalElement
+            ).show();
+          }
 
         }}
         onDelete={

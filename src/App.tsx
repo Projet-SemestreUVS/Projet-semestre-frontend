@@ -104,17 +104,6 @@ function App() {
 
         {/* PRESTATAIRE */}
         <Route element={<PrestataireRoute />}>
-<<<<<<< HEAD
-          <Route
-            path="/prestataire/dashboard"
-            element={<DashboardPrestataire />}
-          />
-
-          <Route
-            path="/prestataire/services"
-            element={<MesServices />}
-          />
-=======
           <Route path="/prestataire/dashboard" element={<DashboardPrestataire />} />
           <Route path="/prestataire/services" element={<MesServices />} />
           <Route path="/prestataire/services/ajouter" element={<AjouterService />} />
@@ -123,47 +112,10 @@ function App() {
           <Route path="/prestataire/messages" element={<MessagesPrestataire />} />
           <Route path="/prestataire/notifications" element={<NotificationsPrestataire />} />
           <Route path="/prestataire/profile" element={<ProfilePrestataire />} />
->>>>>>> b30279c2fe5e33706b3c20578bce318aa335756d
         </Route>
 
         {/* DEMANDEUR */}
         <Route element={<DemandeurRoute />}>
-<<<<<<< HEAD
-          <Route
-            path="/demandeur/dashboard"
-            element={<DashboardDemandeur />}
-          />
-
-          <Route
-            path="/demandeur/reservations"
-            element={<MesReservations />}
-          />
-
-          <Route
-            path="/demandeur/reservation/nouvelle"
-            element={<FaireReservation />}
-          />
-
-          <Route
-            path="/demandeur/avis"
-            element={<MesAvis />}
-          />
-
-          <Route
-            path="/demandeur/messages"
-            element={<Messages />}
-          />
-
-          <Route
-            path="/demandeur/notifications"
-            element={<Notifications />}
-          />
-
-          <Route
-            path="/demandeur/profile"
-            element={<Profile />}
-          />
-=======
           <Route path="/demandeur/dashboard" element={<DashboardDemandeur />} />
           <Route path="/demandeur/reservations" element={<MesReservations />} />
           <Route path="/demandeur/reservation/nouvelle" element={<FaireReservation />} />
@@ -171,7 +123,6 @@ function App() {
           <Route path="/demandeur/messages" element={<MessagesDemandeur />} />
           <Route path="/demandeur/notifications" element={<NotificationsDemandeur />} />
           <Route path="/demandeur/profile" element={<ProfileDemandeur />} />
->>>>>>> b30279c2fe5e33706b3c20578bce318aa335756d
         </Route>
 
         {/* 404 */}

@@ -1,15 +1,15 @@
 import api from "./api";
 
 export const getCategories = async () => {
-  const response = await api.get("/admin/categories");
+  const response = await api.get("/auth/categories");
   return response.data;
 };
 
 export const createCategory = async (
-  data: any
+  data: FormData
 ) => {
   const response = await api.post(
-    "/admin/categories",
+    "/auth/categories",
     data
   );
 
@@ -18,10 +18,10 @@ export const createCategory = async (
 
 export const updateCategory = async (
   id: number,
-  data: any
+  data: FormData
 ) => {
   const response = await api.put(
-    `/admin/categories/${id}`,
+    `/auth/categories/${id}`,
     data
   );
 
@@ -31,7 +31,9 @@ export const updateCategory = async (
 export const deleteCategory = async (
   id: number
 ) => {
-  return await api.delete(
-    `/admin/categories/${id}`
+  const response = await api.delete(
+    `/auth/categories/${id}`
   );
+
+  return response.data;
 };

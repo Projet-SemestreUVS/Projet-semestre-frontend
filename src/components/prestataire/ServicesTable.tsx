@@ -1,139 +1,12 @@
-// interface Props {
-
-//   services:any[];
-
-//   onEdit:(service:any)=>void;
-
-//   onDelete:(id:number)=>void;
-
-//   onToggle:(id:number)=>void;
-// }
-
-// const ServicesTable = ({
-//   services,
-//   onEdit,
-//   onDelete,
-//   onToggle
-// }:Props) => {
-
-//   return (
-
-//     <div className="table-responsive">
-
-//       <table className="table">
-
-//         <thead>
-
-//           <tr>
-
-//             <th>Image</th>
-
-//             <th>Titre</th>
-
-//             <th>Prix</th>
-
-//             <th>Statut</th>
-
-//             <th>Actions</th>
-
-//           </tr>
-
-//         </thead>
-
-//         <tbody>
-
-//           {services.map(
-//             (service:any)=>(
-//             <tr key={service.id}>
-
-//               <td>
-
-//                 <img
-//                   src={service.image_url}
-//                   alt=""
-//                   width="60"
-//                 />
-
-//               </td>
-
-//               <td>
-//                 {service.titre}
-//               </td>
-
-//               <td>
-//                 {service.prix} FCFA
-//               </td>
-
-//               <td>
-
-//                 <span
-//                   className={
-//                     service.actif
-//                     ? "badge bg-success"
-//                     : "badge bg-danger"
-//                   }
-//                 >
-
-//                   {
-//                     service.actif
-//                     ? "Actif"
-//                     : "Inactif"
-//                   }
-
-//                 </span>
-
-//               </td>
-
-//               <td>
-
-//                 <button
-//                   className="btn btn-warning btn-sm me-2"
-//                   onClick={() =>
-//                     onEdit(service)
-//                   }
-//                 >
-//                   Modifier
-//                 </button>
-
-//                 <button
-//                   className="btn btn-secondary btn-sm me-2"
-//                   onClick={() =>
-//                     onToggle(service.id)
-//                   }
-//                 >
-//                   Statut
-//                 </button>
-
-//                 <button
-//                   className="btn btn-danger btn-sm"
-//                   onClick={() =>
-//                     onDelete(service.id)
-//                   }
-//                 >
-//                   Supprimer
-//                 </button>
-
-//               </td>
-
-//             </tr>
-//           ))}
-
-//         </tbody>
-
-//       </table>
-
-//     </div>
-//   );
-// };
-
-// export default ServicesTable;
-
 interface Service {
   id: number;
+  categorie_id?: number;
   titre: string;
+  description?: string;
   photos_url?: string[];
   tarif: string | number;
-  statut: string | boolean;
+  disponibilite?: boolean;
+  statut: string;
 }
 
 interface Props {
@@ -149,60 +22,148 @@ const ServicesTable = ({
   onDelete,
   onToggle,
 }: Props) => {
+  console.log("ServicesTable chargé", services);
+
   return (
     <div className="table-responsive">
-      <table className="table table-striped">
-        <thead>
+      <table className="table table-striped table-hover align-middle">
+        <thead className="table-dark">
           <tr>
             <th>Image</th>
             <th>Titre</th>
             <th>Tarif</th>
+            <th>Disponibilité</th>
             <th>Statut</th>
-            <th>Actions</th>
+            <th style={{ width: "250px" }}>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {services.map((service: Service) => {
-            const isActive = service.statut === "active" || service.statut === true;
-            const firstPhoto = service.photos_url?.[0];
+          {services.length > 0 ? (
+            services.map((service) => {
+              const firstPhoto =
+                service.photos_url &&
+                service.photos_url.length > 0
+                  ? service.photos_url[0]
+                  : null;
 
-            return (
-              <tr key={service.id}>
-                <td>
-                  {firstPhoto ? (
-                    <img src={firstPhoto} alt={service.titre} width="60" />
-                  ) : (
-                    <span>Aucune image</span>
-                  )}
-                </td>
+              return (
+                <tr key={service.id}>
+                  <td>
+                    {firstPhoto ? (
+                      <img
+                        src={firstPhoto}
+                        alt={service.titre}
+                        width="70"
+                        height="70"
+                        className="border rounded"
+                        style={{
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <span className="text-muted">
+                        Aucune image
+                      </span>
+                    )}
+                  </td>
 
-                <td>{service.titre}</td>
+                  <td>
+                    <strong>{service.titre}</strong>
+                  </td>
 
-                <td>{service.tarif} FCFA</td>
+                  <td>{service.tarif} FCFA</td>
 
-                <td>
-                  <span className={isActive ? "badge bg-success" : "badge bg-danger"}>
-                    {isActive ? "Actif" : "Inactif"}
-                  </span>
-                </td>
+                  <td>
+                    <span
+                      className={
+                        service.disponibilite
+                          ? "badge bg-info"
+                          : "badge bg-secondary"
+                      }
+                    >
+                      {service.disponibilite
+                        ? "Disponible"
+                        : "Indisponible"}
+                    </span>
+                  </td>
 
-                <td>
-                  <button className="btn btn-warning btn-sm me-2" onClick={() => onEdit(service)}>
-                    Voir
-                  </button>
+                  <td>
+                    <span
+                      className={
+                        service.statut === "active"
+                          ? "badge bg-success"
+                          : "badge bg-danger"
+                      }
+                    >
+                      {service.statut === "active"
+                        ? "Actif"
+                        : "Inactif"}
+                    </span>
+                  </td>
 
-                  <button className="btn btn-warning btn-sm me-2" onClick={() => onToggle(service.id)}>
-                    Modifier
-                  </button>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => {
+                        console.log(
+                          "Bouton Modifier cliqué",
+                          service
+                        );
 
-                  <button className="btn btn-danger btn-sm" onClick={() => onDelete(service.id)}>
-                    Supprimer
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+                        onEdit(service);
+                      }}
+                    >
+                      <i className="bi bi-pencil-square me-1"></i>
+                      Modifier
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm me-2"
+                      onClick={() => {
+                        console.log(
+                          "Bouton Statut cliqué",
+                          service.id
+                        );
+
+                        onToggle(service.id);
+                      }}
+                    >
+                      <i className="bi bi-arrow-repeat me-1"></i>
+                      Statut
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => {
+                        console.log(
+                          "Bouton Supprimer cliqué",
+                          service.id
+                        );
+
+                        onDelete(service.id);
+                      }}
+                    >
+                      <i className="bi bi-trash me-1"></i>
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td
+                colSpan={6}
+                className="text-center py-4"
+              >
+                Aucun service trouvé
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
