@@ -24,7 +24,11 @@ import Utilisateurs from "./pages/admin/Utilisateurs";
 import Categories from "./pages/admin/Categories";
 import ServicesAdmin from "./pages/admin/Services";
 import ReservationsAdmin from "./pages/admin/ReservationsAdmin";
+<<<<<<< HEAD
 import Avis from "./pages/admin/Avis";
+=======
+import  Avis  from "./pages/admin/Avis";
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
 
 // PRESTATAIRE
 import DashboardPrestataire from "./pages/prestataire/DashboardPrestataire";
