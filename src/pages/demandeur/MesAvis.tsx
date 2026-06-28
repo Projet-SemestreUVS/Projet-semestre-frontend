@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DemandeurSidebar from "../../components/dashboard/DemandeurSidebar";
 import "../../styles/dashboard.css";
-
+import DemandeurCard from "../../components/demandeur/DemandeurCard";
 interface Avis {
   id: number;
   reservation_id: number;
@@ -288,6 +288,7 @@ const MesAvis = () => {
     
     const updatedAvis = avisList.map(a =>
       a.id === editAvis.id
+
         ? { ...a, note: formAvis.note, commentaire: formAvis.commentaire }
         : a
     );
@@ -369,7 +370,13 @@ const MesAvis = () => {
           </h1>
           <p>Gérez vos avis sur les services reçus</p>
         </div>
+</div>
 
+{/* CARTE DEMANDEUR AJOUTÉE ICI */}
+<DemandeurCard titre="Demandeuteur" valeur={stats.total} />
+
+{/* Statistiques */}
+<div className="stats-container">
         {/* Statistiques */}
         <div className="stats-container">
           <div className="stat-card">
