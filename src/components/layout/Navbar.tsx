@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/logos/kay-job.png";
-
+<NavLink to="/about">À propos</NavLink>
 const Navbar = () => {
 
   const { user, logout } = useAuth();

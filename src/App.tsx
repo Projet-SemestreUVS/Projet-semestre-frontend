@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+<Route path="/about" element={<About />} />
 // PUBLIC
 import Home from "./pages/public/Home";
 import About from "./pages/public/About";
@@ -29,21 +29,15 @@ import Avis from "./pages/admin/Avis";
 // PRESTATAIRE
 import DashboardPrestataire from "./pages/prestataire/DashboardPrestataire";
 import MesServices from "./pages/prestataire/MesServices";
-import AjouterService from "./pages/prestataire/AjouterService";
-import ModifierService from "./pages/prestataire/ModifierService";
-import ReservationsRecues from "./pages/prestataire/ReservationsRecues";
-import MessagesPrestataire from "./pages/prestataire/Messages";
-import NotificationsPrestataire from "./pages/prestataire/Notifications";
-import ProfilePrestataire from "./pages/prestataire/Profile";
 
 // DEMANDEUR
 import DashboardDemandeur from "./pages/demandeur/DashboardDemandeur";
 import MesReservations from "./pages/demandeur/MesReservations";
 import FaireReservation from "./pages/demandeur/FaireReservation";
 import MesAvis from "./pages/demandeur/MesAvis";
-import MessagesDemandeur from "./pages/demandeur/Messages";
-import NotificationsDemandeur from "./pages/demandeur/Notifications";
-import ProfileDemandeur from "./pages/demandeur/Profile";
+import Messages from "./pages/demandeur/Messages";
+import Notifications from "./pages/demandeur/Notifications";
+import Profile from "./pages/demandeur/Profile";
 
 function App() {
   return (
@@ -62,26 +56,20 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* ADMIN */}
-        <Route element={<AdminRoute />}>
-          <Route path="/admin/statistiques" element={<Statistiques />} />
-          <Route path="/admin/users" element={<Utilisateurs />} />
-          <Route path="/admin/categories" element={<Categories />} />
-          <Route path="/admin/services" element={<ServicesAdmin />} />
-          <Route path="/admin/reservations" element={<ReservationsAdmin />} />
-          <Route path="/admin/reviews" element={<Avis />} />
-        </Route>
+       {/* ADMIN */}
+<Route path="/admin" element={<AdminRoute />}>
+  <Route path="statistiques" element={<Statistiques />} />
+  <Route path="users" element={<Utilisateurs />} />
+  <Route path="categories" element={<Categories />} />
+  <Route path="services" element={<ServicesAdmin />} />
+  <Route path="reservations" element={<ReservationsAdmin />} />
+  <Route path="reviews" element={<Avis />} />
+</Route>
 
         {/* PRESTATAIRE */}
         <Route element={<PrestataireRoute />}>
           <Route path="/prestataire/dashboard" element={<DashboardPrestataire />} />
           <Route path="/prestataire/services" element={<MesServices />} />
-          <Route path="/prestataire/services/ajouter" element={<AjouterService />} />
-          <Route path="/prestataire/services/modifier/:id" element={<ModifierService />} />
-          <Route path="/prestataire/reservations" element={<ReservationsRecues />} />
-          <Route path="/prestataire/messages" element={<MessagesPrestataire />} />
-          <Route path="/prestataire/notifications" element={<NotificationsPrestataire />} />
-          <Route path="/prestataire/profile" element={<ProfilePrestataire />} />
         </Route>
 
         {/* DEMANDEUR */}
@@ -90,9 +78,9 @@ function App() {
           <Route path="/demandeur/reservations" element={<MesReservations />} />
           <Route path="/demandeur/reservation/nouvelle" element={<FaireReservation />} />
           <Route path="/demandeur/avis" element={<MesAvis />} />
-          <Route path="/demandeur/messages" element={<MessagesDemandeur />} />
-          <Route path="/demandeur/notifications" element={<NotificationsDemandeur />} />
-          <Route path="/demandeur/profile" element={<ProfileDemandeur />} />
+          <Route path="/demandeur/messages" element={<Messages />} />
+          <Route path="/demandeur/notifications" element={<Notifications />} />
+          <Route path="/demandeur/profile" element={<Profile />} />
         </Route>
 
         {/* 404 */}
