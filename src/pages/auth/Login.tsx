@@ -29,6 +29,8 @@ const Login = () => {
   }, [user, authLoading]);
 
   const redirectBasedOnRole = (role: string) => {
+    console.log("Redirection basée sur le rôle:", role);
+    
     switch (role) {
       case "admin":
         navigate("/admin/statistiques", { replace: true });
@@ -41,6 +43,7 @@ const Login = () => {
         break;
       default:
         navigate("/", { replace: true });
+        break;
     }
   };
 
@@ -89,6 +92,8 @@ const Login = () => {
         throw new Error("Token ou utilisateur manquant");
       }
       
+      console.log("Connexion réussie - Rôle:", userData.role);
+      
       // Appeler la fonction login du contexte
       login(token, userData);
       
@@ -99,11 +104,13 @@ const Login = () => {
         localStorage.removeItem("remember_email");
       }
       
-      // Rediriger
-      redirectBasedOnRole(userData.role);
+      // Rediriger après un court délai pour laisser le contexte se mettre à jour
+      setTimeout(() => {
+        redirectBasedOnRole(userData.role);
+      }, 100);
       
     } catch (error: any) {
-      console.error("Erreur:", error);
+      console.error("Erreur de connexion:", error);
       const errorMessage = error.response?.data?.message || "Email ou mot de passe incorrect";
       alert(errorMessage);
     } finally {
