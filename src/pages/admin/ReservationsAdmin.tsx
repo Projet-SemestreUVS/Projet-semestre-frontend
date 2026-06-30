@@ -2,548 +2,1090 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import AdminSidebar from "../../components/dashboard/AdminSidebar";
-import ReservationForm from "./ReservationForm";
-import api from "../../services/api";
 
-// ----- DONNÉES DE TEST -----
-const mockReservations = [
-  {
-    id: 8,
-    service_id: 101,
-    demandeur_id: 5,
-    prestataire_id: 2,
-    date_debut: "2026-03-11 10:00:00",
-    statut: "confirmee",
-    commentaire: null,
-    created_at: "2026-03-11 08:30:00",
-    service: { id: 101, nom: "Coiffure homme", prix: 2500 },
-    demandeur: { id: 5, nom: "Gueye", prenom: "Daba", email: "daba@test.com", telephone: "776666666" },
-    prestataire: { id: 2, nom: "Fall", prenom: "Ahmadou" }
-  },
-  {
-    id: 7,
-    service_id: 102,
-    demandeur_id: 6,
-    prestataire_id: 3,
-    date_debut: "2026-03-11 14:30:00",
-    statut: "en_attente",
-    commentaire: "À confirmer",
-    created_at: "2026-03-11 09:00:00",
-    service: { id: 102, nom: "Massage", prix: 5000 },
-    demandeur: { id: 6, nom: "Gueye", prenom: "Fallou", email: "fallou@test.com", telephone: "777950491" },
-    prestataire: { id: 3, nom: "Diop", prenom: "Mamadou" }
-  },
-  {
-    id: 6,
-    service_id: 103,
-    demandeur_id: 7,
-    prestataire_id: 4,
-    date_debut: "2026-03-10 08:00:00",
-    statut: "terminee",
-    commentaire: "Terminé",
-    created_at: "2026-03-10 07:45:00",
-    service: { id: 103, nom: "Manucure", prix: 1500 },
-    demandeur: { id: 7, nom: "Mbaye", prenom: "Diodio", email: "diodio@test.com", telephone: "789665302" },
-    prestataire: { id: 4, nom: "Sow", prenom: "Fatou" }
-  },
-  {
-    id: 5,
-    service_id: 104,
-    demandeur_id: 8,
-    prestataire_id: 2,
-    date_debut: "2026-03-09 16:00:00",
-    statut: "annulee",
-    commentaire: "Annulé par le client",
-    created_at: "2026-03-09 15:20:00",
-    service: { id: 104, nom: "Soin visage", prix: 3500 },
-    demandeur: { id: 8, nom: "Ndiaye", prenom: "Aida Habibe", email: "aida@test.com", telephone: "770000000" },
-    prestataire: { id: 2, nom: "Fall", prenom: "Ahmadou" }
-  },
-  {
-    id: 3,
-    service_id: 105,
-    demandeur_id: 9,
-    prestataire_id: 5,
-    date_debut: "2026-03-08 11:30:00",
-    statut: "confirmee",
-    commentaire: null,
-    created_at: "2026-03-08 10:00:00",
-    service: { id: 105, nom: "Coiffure femme", prix: 3000 },
-    demandeur: { id: 9, nom: "Soumaré", prenom: "Oumar", email: "oumar@test.com", telephone: "709344994" },
-    prestataire: { id: 5, nom: "Ndiaye", prenom: "Aminata" }
-  },
-  {
-    id: 2,
-    service_id: 106,
-    demandeur_id: 10,
-    prestataire_id: 3,
-    date_debut: "2026-03-07 09:00:00",
-    statut: "en_attente",
-    commentaire: "En attente de paiement",
-    created_at: "2026-03-07 08:30:00",
-    service: { id: 106, nom: "Massage aux pierres chaudes", prix: 6000 },
-    demandeur: { id: 10, nom: "Ndiaye", prenom: "Habibe", email: "habibe@test.com", telephone: "770977939" },
-    prestataire: { id: 3, nom: "Diop", prenom: "Mamadou" }
-  },
-  {
-    id: 1,
-    service_id: 107,
-    demandeur_id: 11,
-    prestataire_id: 4,
-    date_debut: "2026-03-06 13:00:00",
-    statut: "terminee",
-    commentaire: null,
-    created_at: "2026-03-06 12:30:00",
-    service: { id: 107, nom: "Épilation", prix: 2000 },
-    demandeur: { id: 11, nom: "Gueye", prenom: "Abdoulaye", email: "abdoulaye@test.com", telephone: "763162164" },
-    prestataire: { id: 4, nom: "Sow", prenom: "Fatou" }
-  }
-];
-
-// ----- COMPOSANT -----
-const ReservationsAdmin = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const [editingReservation, setEditingReservation] = useState<any>(null);
-  const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
-
-  useEffect(() => {
-    // Remplacer par un appel API pour les vraies données
-    // Mais ici on utilise les données mock pour tester l'affichage
-    setReservations(mockReservations);
-    setLoading(false);
-    setError(null);
-
-    /* === Pour utiliser l'API, décommentez le code ci-dessous et commentez les lignes ci-dessus ===
-    fetchReservations();
-    */
-  }, []);
-
-  // fonction réelle pour l'API (conservée mais non utilisée pour l'instant)
-  const fetchReservations = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.get("/auth/reservations");
-      let data = response.data?.data || response.data || [];
-      setReservations(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Erreur de chargement");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreate = () => {
-    setFormMode('create');
-    setEditingReservation(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (reservation: any) => {
-    setFormMode('edit');
-    setEditingReservation(reservation);
-    setShowForm(true);
-  };
-
-  const handleFormSuccess = () => {
-    // Rafraîchir avec l'API ou mock
-    setReservations(mockReservations); // Si on veut rafraîchir avec les mock
-    showNotification('Opération réussie', 'success');
-  };
-
-  const handleDelete = (id: number) => {
-    if (!confirm("Supprimer cette réservation ?")) return;
-    setReservations(prev => prev.filter(r => r.id !== id));
-    showNotification("Réservation supprimée", "success");
-  };
-
-  const showNotification = (message: string, type: "success" | "error") => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  const getStatutClass = (statut: string) => {
-    switch (statut) {
-      case "confirmee": return "status-confirmee";
-      case "terminee": return "status-terminee";
-      case "annulee": return "status-annulee";
-      default: return "status-en-attente";
-    }
-  };
-
-  const getStatutTexte = (statut: string) => {
-    const map: Record<string, string> = {
-      confirmee: "Confirmée",
-      terminee: "Terminée",
-      annulee: "Annulée",
-      en_attente: "En attente"
-    };
-    return map[statut] || statut;
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "-";
-    const d = new Date(dateString);
-    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  const filtered = reservations.filter(r => {
-    const term = searchTerm.toLowerCase();
-    if (!term) return true;
-    return (
-      r.id.toString().includes(term) ||
-      `${r.demandeur?.prenom || ""} ${r.demandeur?.nom || ""}`.toLowerCase().includes(term) ||
-      (r.demandeur?.telephone || "").includes(term) ||
-      (r.service?.nom || "").toLowerCase().includes(term) ||
-      r.statut.toLowerCase().includes(term)
-    );
-  });
-
-  if (loading) {
-    return (
-      <DashboardLayout sidebar={<AdminSidebar />}>
-        <div className="loading-container"><div className="spinner"/><p>Chargement...</p></div>
-      </DashboardLayout>
-    );
-  }
-
-  return (
-    <DashboardLayout sidebar={<AdminSidebar />}>
-      <div className="reservations-container">
-        {notification && (
-          <div className={`notification ${notification.type}`}>
-            <span>{notification.message}</span>
-          </div>
-        )}
-        {error && (
-          <div className="error-banner">
-            <span>⚠️ {error}</span>
-          </div>
-        )}
-
-        {/* En-tête */}
-        <div className="header">
-          <h1>📋 Gestion des Réservations</h1>
-        </div>
-
-        {/* Barre de recherche + Ajouter */}
-        <div className="toolbar">
-          <div className="search-box">
-            <i className="bi bi-search"></i>
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button className="clear-btn" onClick={() => setSearchTerm("")}>
-                <i className="bi bi-x-lg"></i>
-              </button>
-            )}
-          </div>
-          <button className="btn-add" onClick={handleCreate}>
-            <i className="bi bi-plus-circle"></i> Ajouter
-          </button>
-        </div>
-
-        {/* Tableau */}
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Client</th>
-                <th>Téléphone</th>
-                <th>Service</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="empty-cell">
-                    <i className="bi bi-inbox"></i>
-                    <p>Aucune réservation</p>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((r) => (
-                  <tr key={r.id}>
-                    <td className="id-cell">{r.id}</td>
-                    <td>{r.demandeur?.prenom} {r.demandeur?.nom}</td>
-                    <td>{r.demandeur?.telephone || "-"}</td>
-                    <td>{r.service?.nom || "-"}</td>
-                    <td>{formatDate(r.date_debut)}</td>
-                    <td>
-                      <span className={`status-badge ${getStatutClass(r.statut)}`}>
-                        {getStatutTexte(r.statut)}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="actions">
-                        <button className="btn-edit" onClick={() => handleEdit(r)} title="Modifier">
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button className="btn-delete" onClick={() => handleDelete(r.id)} title="Supprimer">
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pied de tableau */}
-        <div className="table-footer">
-          <span>
-            Affichage de <strong>{filtered.length}</strong> réservation{filtered.length > 1 ? "s" : ""}
-          </span>
-        </div>
-
-        <ReservationForm
-          isOpen={showForm}
-          onClose={() => setShowForm(false)}
-          onSuccess={handleFormSuccess}
-          reservation={editingReservation}
-          mode={formMode}
-        />
-      </div>
-
-      {/* Styles (inchangés) */}
-      <style>{`
-        .reservations-container {
-          padding: 2rem;
-          background: #f8fafc;
-          min-height: 100vh;
-        }
-        .notification {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 14px 24px;
-          border-radius: 12px;
-          color: white;
-          font-weight: 600;
-          z-index: 10000;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-          animation: slideIn 0.3s ease;
-        }
-        .notification.success { background: #10b981; }
-        .notification.error { background: #ef4444; }
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        .error-banner {
-          background: #fef3c7;
-          border-left: 4px solid #d97706;
-          padding: 12px 20px;
-          border-radius: 10px;
-          margin-bottom: 20px;
-          color: #92400e;
-        }
-        .loading-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 400px;
-        }
-        .spinner {
-          width: 44px;
-          height: 44px;
-          border: 3px solid #e2e8f0;
-          border-top-color: #4a6cf7;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .header h1 {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1a2332;
-          margin-bottom: 24px;
-        }
-        .toolbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-        .search-box {
-          display: flex;
-          align-items: center;
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 50px;
-          padding: 6px 16px;
-          flex: 1;
-          max-width: 380px;
-          transition: all 0.3s;
-        }
-        .search-box:focus-within {
-          border-color: #4a6cf7;
-          box-shadow: 0 0 0 3px rgba(74,108,247,0.12);
-        }
-        .search-box i {
-          color: #94a3b8;
-          font-size: 16px;
-          margin-right: 10px;
-        }
-        .search-box input {
-          border: none;
-          background: transparent;
-          padding: 10px 0;
-          font-size: 14px;
-          width: 100%;
-          outline: none;
-          color: #1a2332;
-        }
-        .search-box input::placeholder { color: #aab7cc; }
-        .clear-btn {
-          background: none;
-          border: none;
-          color: #94a3b8;
-          cursor: pointer;
-          padding: 4px 6px;
-          font-size: 14px;
-        }
-        .btn-add {
-          background: #4a6cf7;
-          color: white;
-          border: none;
-          padding: 11px 26px;
-          border-radius: 50px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          transition: all 0.3s;
-          white-space: nowrap;
-        }
-        .btn-add:hover {
-          background: #3a5cd9;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(74,108,247,0.35);
-        }
-        .btn-add i { font-size: 18px; }
-        .table-wrapper {
-          background: white;
-          border-radius: 14px;
-          border: 1px solid #e9edf4;
-          overflow: hidden;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 14px;
-        }
-        thead {
-          background: #f8fafd;
-          border-bottom: 2px solid #e9edf4;
-        }
-        thead th {
-          text-align: left;
-          padding: 14px 18px;
-          font-weight: 600;
-          color: #4a5b74;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-        }
-        tbody tr {
-          border-bottom: 1px solid #f0f3f8;
-          transition: background 0.15s;
-        }
-        tbody tr:hover { background: #f8fafd; }
-        tbody td { padding: 14px 18px; color: #1a2332; }
-        .id-cell { font-weight: 700; color: #4a6cf7; }
-        .status-badge {
-          display: inline-block;
-          padding: 4px 14px;
-          border-radius: 50px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: capitalize;
-        }
-        .status-confirmee { background: #dcfce7; color: #0d9b6c; }
-        .status-en-attente { background: #fef3c7; color: #b45309; }
-        .status-annulee { background: #fde8e8; color: #d14545; }
-        .status-terminee { background: #e8edf5; color: #4a5b74; }
-        .actions { display: flex; gap: 10px; }
-        .actions button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          padding: 4px 6px;
-          border-radius: 6px;
-          transition: all 0.2s;
-        }
-        .btn-edit { color: #4a6cf7; }
-        .btn-edit:hover { background: #eef2ff; transform: scale(1.1); }
-        .btn-delete { color: #e74c5e; }
-        .btn-delete:hover { background: #fde8ea; transform: scale(1.1); }
-        .empty-cell {
-          text-align: center !important;
-          padding: 40px !important;
-          color: #94a3b8;
-        }
-        .empty-cell i { font-size: 32px; display: block; margin-bottom: 8px; }
-        .empty-cell p { margin: 0; }
-        .table-footer {
-          margin-top: 16px;
-          display: flex;
-          justify-content: flex-end;
-          font-size: 14px;
-          color: #6a7b94;
-        }
-        .table-footer strong { color: #1a2332; }
-        @media (max-width: 768px) {
-          .reservations-container { padding: 1rem; }
-          .toolbar { flex-direction: column; align-items: stretch; }
-          .search-box { max-width: 100%; }
-          .btn-add { justify-content: center; }
-          .header h1 { font-size: 20px; }
-          table { font-size: 13px; }
-          thead th, tbody td { padding: 10px 12px; }
-          .actions { gap: 6px; }
-        }
-      `}</style>
-    </DashboardLayout>
-  );
-};
-
-// N'oubliez pas de définir l'interface Reservation (ou importez-la)
 interface Reservation {
   id: number;
   service_id: number;
   demandeur_id: number;
   prestataire_id: number;
   date_debut: string;
-  date_fin?: string;
   statut: "en_attente" | "confirmee" | "terminee" | "annulee";
   commentaire: string | null;
-  prix_total?: number;
   created_at: string;
-  service?: { id: number; nom: string; prix: number };
-  demandeur?: { id: number; nom: string; prenom: string; email: string; telephone: string };
-  prestataire?: { id: number; nom: string; prenom: string };
+  service?: {
+    id: number;
+    nom: string;
+    prix: number;
+    categorie?: string;
+  };
+  demandeur?: {
+    id: number;
+    nom: string;
+    prenom: string;
+    email: string;
+    telephone: string;
+    avatar?: string;
+  };
+  prestataire?: {
+    id: number;
+    nom: string;
+    prenom: string;
+    email: string;
+    telephone: string;
+    avatar?: string;
+  };
 }
+
+const ReservationsAdmin = () => {
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedStatut, setSelectedStatut] = useState<string>("tous");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const [sortBy, setSortBy] = useState<"date" | "status" | "service">("date");
+  const [showStats, setShowStats] = useState(true);
+
+  // Initialisation des données
+  useEffect(() => {
+    try {
+      const savedReservations = localStorage.getItem("reservations");
+      if (savedReservations) {
+        try {
+          const parsed = JSON.parse(savedReservations);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setReservations(parsed);
+            setFilteredReservations(parsed);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Erreur de parsing:", e);
+        }
+      }
+      initializeDefaultReservations();
+    } catch (err) {
+      console.error("Erreur d'initialisation:", err);
+      setError("Erreur lors du chargement des réservations");
+      setLoading(false);
+    }
+  }, []);
+
+  const initializeDefaultReservations = () => {
+    const defaultReservations: Reservation[] = [
+      {
+        id: 1,
+        service_id: 1,
+        demandeur_id: 1,
+        prestataire_id: 2,
+        date_debut: new Date(Date.now() + 86400000 * 2).toISOString(),
+        statut: "confirmee",
+        commentaire: "Première séance prévue à 14h",
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        service: {
+          id: 1,
+          nom: "Cours de Mathématiques",
+          prix: 15000,
+          categorie: "Éducation"
+        },
+        demandeur: {
+          id: 1,
+          nom: "Diop",
+          prenom: "Ahmadou",
+          email: "ahmadou.diop@kayjob.com",
+          telephone: "+221 77 123 45 67",
+          avatar: "👨‍💼"
+        },
+        prestataire: {
+          id: 2,
+          nom: "Fall",
+          prenom: "Fatou",
+          email: "fatou.fall@kayjob.com",
+          telephone: "+221 78 987 65 43",
+          avatar: "👩‍🏫"
+        }
+      },
+      {
+        id: 2,
+        service_id: 2,
+        demandeur_id: 3,
+        prestataire_id: 4,
+        date_debut: new Date(Date.now() + 86400000 * 5).toISOString(),
+        statut: "en_attente",
+        commentaire: "Besoin d'une intervention urgente",
+        created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+        service: {
+          id: 2,
+          nom: "Plomberie Générale",
+          prix: 25000,
+          categorie: "Bricolage"
+        },
+        demandeur: {
+          id: 3,
+          nom: "Ndiaye",
+          prenom: "Moussa",
+          email: "moussa.ndiaye@kayjob.com",
+          telephone: "+221 76 456 78 90",
+          avatar: "👨‍🔧"
+        },
+        prestataire: {
+          id: 4,
+          nom: "Sow",
+          prenom: "Aminata",
+          email: "aminata.sow@kayjob.com",
+          telephone: "+221 77 789 01 23",
+          avatar: "👩‍🔧"
+        }
+      },
+      {
+        id: 3,
+        service_id: 3,
+        demandeur_id: 5,
+        prestataire_id: 6,
+        date_debut: new Date(Date.now() - 86400000 * 1).toISOString(),
+        statut: "terminee",
+        commentaire: "Très satisfait du service",
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        service: {
+          id: 3,
+          nom: "Cours de Yoga",
+          prix: 12000,
+          categorie: "Bien-être"
+        },
+        demandeur: {
+          id: 5,
+          nom: "Ba",
+          prenom: "Mamadou",
+          email: "mamadou.ba@kayjob.com",
+          telephone: "+221 70 234 56 78",
+          avatar: "👨‍💻"
+        },
+        prestataire: {
+          id: 6,
+          nom: "Diallo",
+          prenom: "Mariama",
+          email: "mariama.diallo@kayjob.com",
+          telephone: "+221 78 345 67 89",
+          avatar: "🧘‍♀️"
+        }
+      },
+      {
+        id: 4,
+        service_id: 4,
+        demandeur_id: 1,
+        prestataire_id: 5,
+        date_debut: new Date(Date.now() + 86400000 * 8).toISOString(),
+        statut: "en_attente",
+        commentaire: "À confirmer avant le 15",
+        created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        service: {
+          id: 4,
+          nom: "Couture sur Mesure",
+          prix: 18000,
+          categorie: "Mode"
+        },
+        demandeur: {
+          id: 1,
+          nom: "Diop",
+          prenom: "Ahmadou",
+          email: "ahmadou.diop@kayjob.com",
+          telephone: "+221 77 123 45 67",
+          avatar: "👨‍💼"
+        },
+        prestataire: {
+          id: 5,
+          nom: "Ba",
+          prenom: "Mamadou",
+          email: "mamadou.ba@kayjob.com",
+          telephone: "+221 70 234 56 78",
+          avatar: "👨‍🎨"
+        }
+      },
+      {
+        id: 5,
+        service_id: 5,
+        demandeur_id: 2,
+        prestataire_id: 3,
+        date_debut: new Date(Date.now() - 86400000 * 15).toISOString(),
+        statut: "annulee",
+        commentaire: "Annulé par le demandeur",
+        created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
+        service: {
+          id: 5,
+          nom: "Réparation Informatique",
+          prix: 20000,
+          categorie: "Technologie"
+        },
+        demandeur: {
+          id: 2,
+          nom: "Fall",
+          prenom: "Fatou",
+          email: "fatou.fall@kayjob.com",
+          telephone: "+221 78 987 65 43",
+          avatar: "👩‍💻"
+        },
+        prestataire: {
+          id: 3,
+          nom: "Ndiaye",
+          prenom: "Moussa",
+          email: "moussa.ndiaye@kayjob.com",
+          telephone: "+221 76 456 78 90",
+          avatar: "👨‍💻"
+        }
+      }
+    ];
+    setReservations(defaultReservations);
+    setFilteredReservations(defaultReservations);
+    localStorage.setItem("reservations", JSON.stringify(defaultReservations));
+    setLoading(false);
+  };
+
+  // Filtrage et tri
+  useEffect(() => {
+    try {
+      let result = [...reservations];
+
+      // Recherche
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        result = result.filter(
+          (r) =>
+            r.service?.nom?.toLowerCase().includes(searchLower) ||
+            r.demandeur?.prenom?.toLowerCase().includes(searchLower) ||
+            r.demandeur?.nom?.toLowerCase().includes(searchLower) ||
+            r.prestataire?.prenom?.toLowerCase().includes(searchLower) ||
+            r.prestataire?.nom?.toLowerCase().includes(searchLower) ||
+            r.service?.categorie?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Filtre par statut
+      if (selectedStatut !== "tous") {
+        result = result.filter((r) => r.statut === selectedStatut);
+      }
+
+      // Tri
+      if (sortBy === "date") {
+        result.sort((a, b) => new Date(b.date_debut).getTime() - new Date(a.date_debut).getTime());
+      } else if (sortBy === "status") {
+        const statusOrder = { en_attente: 0, confirmee: 1, terminee: 2, annulee: 3 };
+        result.sort((a, b) => statusOrder[a.statut] - statusOrder[b.statut]);
+      } else if (sortBy === "service") {
+        result.sort((a, b) => (a.service?.nom || "").localeCompare(b.service?.nom || ""));
+      }
+
+      setFilteredReservations(result);
+    } catch (err) {
+      console.error("Erreur de filtrage:", err);
+    }
+  }, [searchTerm, selectedStatut, sortBy, reservations]);
+
+  // Sauvegarde automatique
+  useEffect(() => {
+    if (reservations.length > 0) {
+      try {
+        localStorage.setItem("reservations", JSON.stringify(reservations));
+      } catch (err) {
+        console.error("Erreur de sauvegarde:", err);
+      }
+    }
+  }, [reservations]);
+
+  const getStatutClass = (statut: string) => {
+    switch (statut) {
+      case "confirmee": return "statut-confirmee";
+      case "terminee": return "statut-terminee";
+      case "annulee": return "statut-annulee";
+      default: return "statut-attente";
+    }
+  };
+
+  const getStatutTexte = (statut: string) => {
+    switch (statut) {
+      case "confirmee": return "Confirmée";
+      case "terminee": return "Terminée";
+      case "annulee": return "Annulée";
+      default: return "En attente";
+    }
+  };
+
+  const getStatutIcon = (statut: string) => {
+    switch (statut) {
+      case "confirmee": return "✅";
+      case "terminee": return "🏁";
+      case "annulee": return "❌";
+      default: return "⏳";
+    }
+  };
+
+  const handleUpdateStatut = async (id: number, newStatut: string) => {
+    try {
+      setUpdating(true);
+      
+      setReservations(prev =>
+        prev.map(r =>
+          r.id === id ? { ...r, statut: newStatut as any } : r
+        )
+      );
+      
+      if (selectedReservation && selectedReservation.id === id) {
+        setSelectedReservation({ ...selectedReservation, statut: newStatut as any });
+      }
+      
+      showNotification(`Statut mis à jour: ${getStatutTexte(newStatut)}`, "success");
+      
+    } catch (err) {
+      console.error("Erreur:", err);
+      showNotification("Erreur lors de la mise à jour", "error");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const reservationToDelete = reservations.find(r => r.id === id);
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la réservation #${id} ?`)) return;
+    
+    try {
+      setReservations(prev => prev.filter(r => r.id !== id));
+      if (selectedReservation && selectedReservation.id === id) {
+        setShowModal(false);
+        setSelectedReservation(null);
+      }
+      showNotification("Réservation supprimée avec succès", "success");
+    } catch (err) {
+      console.error("Erreur:", err);
+      showNotification("Erreur lors de la suppression", "error");
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusColor = (statut: string) => {
+    switch (statut) {
+      case "confirmee": return "#16a34a";
+      case "terminee": return "#3b82f6";
+      case "annulee": return "#ef4444";
+      default: return "#d97706";
+    }
+  };
+
+  const showNotification = (message: string, type: "success" | "error" = "success") => {
+    try {
+      const notification = document.createElement("div");
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        background: ${type === "success" ? "linear-gradient(135deg, #16a34a, #22c55e)" : "linear-gradient(135deg, #dc2626, #ef4444)"};
+        animation: slideIn 0.3s ease;
+        max-width: 400px;
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.style.opacity = "0";
+        notification.style.transform = "translateX(100%)";
+        notification.style.transition = "all 0.3s ease";
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    } catch (err) {
+      console.error("Erreur de notification:", err);
+    }
+  };
+
+  const stats = {
+    total: reservations.length,
+    en_attente: reservations.filter(r => r.statut === "en_attente").length,
+    confirmees: reservations.filter(r => r.statut === "confirmee").length,
+    terminees: reservations.filter(r => r.statut === "terminee").length,
+    annulees: reservations.filter(r => r.statut === "annulee").length,
+    total_prix: reservations.reduce((acc, r) => acc + (r.service?.prix || 0), 0),
+  };
+
+  if (error) {
+    return (
+      <DashboardLayout sidebar={<AdminSidebar />}>
+        <div style={{ padding: "24px" }}>
+          <div style={{ 
+            background: "#fee2e2", 
+            color: "#dc2626", 
+            padding: "16px 24px", 
+            borderRadius: "12px",
+            border: "1px solid #fecaca"
+          }}>
+            <h3 style={{ margin: "0 0 8px 0" }}>⚠️ Erreur</h3>
+            <p style={{ margin: 0 }}>{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: "12px",
+                padding: "8px 16px",
+                background: "#dc2626",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer"
+              }}
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout sidebar={<AdminSidebar />}>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column",
+          alignItems: "center", 
+          justifyContent: "center", 
+          minHeight: "400px", 
+          gap: "16px" 
+        }}>
+          <div style={{
+            width: "48px",
+            height: "48px",
+            border: "4px solid #e2e8f0",
+            borderTopColor: "#4F46E5",
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite"
+          }}></div>
+          <p>Chargement des réservations...</p>
+          <style>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout sidebar={<AdminSidebar />}>
+      <div style={{ padding: "24px 32px", maxWidth: "1400px", margin: "0 auto" }}>
+        {/* En-tête */}
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "flex-start", 
+          marginBottom: "32px", 
+          flexWrap: "wrap", 
+          gap: "16px" 
+        }}>
+          <div>
+            <h1 style={{ 
+              fontSize: "28px", 
+              fontWeight: "700", 
+              color: "#1a202c", 
+              margin: "0 0 4px 0", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "12px" 
+            }}>
+              <span style={{ fontSize: "32px" }}>📅</span>
+              Gestion des Réservations
+            </h1>
+            <p style={{ color: "#718096", fontSize: "15px", margin: 0 }}>
+              Gérez toutes les réservations de la plateforme KayJob
+            </p>
+          </div>
+          <button 
+            onClick={() => setShowStats(!showStats)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 20px",
+              background: "white",
+              color: "#4a5568",
+              border: "2px solid #e2e8f0",
+              borderRadius: "12px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.3s ease"
+            }}
+          >
+            <span>📊</span>
+            {showStats ? "Cacher" : "Voir"} les statistiques
+          </button>
+        </div>
+
+        {/* Statistiques */}
+        {showStats && (
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            border: "1px solid #f1f5f9"
+          }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+              gap: "16px"
+            }}>
+              {[
+                { label: "Total", value: stats.total, icon: "📊", color: "#eff6ff", textColor: "#3b82f6" },
+                { label: "En attente", value: stats.en_attente, icon: "⏳", color: "#fef3c7", textColor: "#d97706" },
+                { label: "Confirmées", value: stats.confirmees, icon: "✅", color: "#dcfce7", textColor: "#16a34a" },
+                { label: "Terminées", value: stats.terminees, icon: "🏁", color: "#e0f2fe", textColor: "#3b82f6" },
+                { label: "Annulées", value: stats.annulees, icon: "❌", color: "#fee2e2", textColor: "#ef4444" }
+              ].map((stat, index) => (
+                <div key={index} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "16px 20px",
+                  background: stat.color,
+                  borderRadius: "12px"
+                }}>
+                  <div style={{
+                    fontSize: "24px",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "white",
+                    borderRadius: "10px"
+                  }}>{stat.icon}</div>
+                  <div>
+                    <h3 style={{ fontSize: "22px", fontWeight: "700", margin: 0, color: stat.textColor }}>
+                      {stat.value}
+                    </h3>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: "#64748b" }}>{stat.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Filtres */}
+        <div style={{
+          background: "white",
+          borderRadius: "16px",
+          padding: "16px",
+          marginBottom: "24px",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+          border: "1px solid #f1f5f9",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "12px",
+          alignItems: "center"
+        }}>
+          <div style={{
+            flex: 1,
+            minWidth: "200px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#f8fafc",
+            padding: "0 16px",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0"
+          }}>
+            <span>🔍</span>
+            <input
+              type="text"
+              placeholder="Rechercher par service, demandeur ou prestataire..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                flex: 1,
+                padding: "10px 0",
+                border: "none",
+                background: "none",
+                outline: "none",
+                fontSize: "14px"
+              }}
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm("")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#a0aec0",
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {[
+              { value: "tous", label: `Tous (${stats.total})` },
+              { value: "en_attente", label: `⏳ En attente (${stats.en_attente})` },
+              { value: "confirmee", label: `✅ Confirmées (${stats.confirmees})` },
+              { value: "terminee", label: `🏁 Terminées (${stats.terminees})` },
+              { value: "annulee", label: `❌ Annulées (${stats.annulees})` }
+            ].map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setSelectedStatut(filter.value)}
+                style={{
+                  padding: "8px 16px",
+                  background: selectedStatut === filter.value ? "#4F46E5" : "#f8fafc",
+                  color: selectedStatut === filter.value ? "white" : "#1e293b",
+                  border: selectedStatut === filter.value ? "1px solid #4F46E5" : "1px solid #e2e8f0",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            style={{
+              padding: "8px 16px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "10px",
+              fontSize: "12px",
+              fontWeight: "500",
+              cursor: "pointer"
+            }}
+          >
+            <option value="date">📅 Trier par date</option>
+            <option value="status">📊 Trier par statut</option>
+            <option value="service">📌 Trier par service</option>
+          </select>
+        </div>
+
+        {/* Résultats */}
+        <div style={{ fontSize: "14px", color: "#718096", marginBottom: "16px" }}>
+          <span>
+            {filteredReservations.length} réservation{filteredReservations.length > 1 ? "s" : ""} trouvée{filteredReservations.length > 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {/* Tableau des réservations */}
+        {filteredReservations.length === 0 ? (
+          <div style={{
+            textAlign: "center",
+            padding: "48px 20px",
+            background: "white",
+            borderRadius: "16px",
+            border: "1px solid #f1f5f9"
+          }}>
+            <span style={{ fontSize: "48px", opacity: "0.5" }}>📭</span>
+            <p style={{ fontSize: "16px", fontWeight: "500", margin: "8px 0 4px 0", color: "#475569" }}>
+              Aucune réservation trouvée
+            </p>
+            <span style={{ fontSize: "14px", color: "#94a3b8" }}>
+              {searchTerm ? "Essayez avec d'autres critères" : "Aucune réservation disponible"}
+            </span>
+          </div>
+        ) : (
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            overflowX: "auto",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            border: "1px solid #f1f5f9"
+          }}>
+            <table style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "800px"
+            }}>
+              <thead>
+                <tr style={{
+                  background: "#f8fafc",
+                  borderBottom: "2px solid #e2e8f0"
+                }}>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>ID</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Service</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Demandeur</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Prestataire</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Date</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Montant</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Statut</th>
+                  <th style={{ padding: "16px 20px", textAlign: "center", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredReservations.map((reservation) => (
+                  <tr key={reservation.id} style={{
+                    borderBottom: "1px solid #f1f5f9",
+                    transition: "background 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
+                  >
+                    <td style={{ padding: "16px 20px", fontWeight: "600", color: "#1a202c" }}>
+                      #{reservation.id}
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div>
+                        <div style={{ fontWeight: "500", color: "#1a202c" }}>
+                          {reservation.service?.nom || "-"}
+                        </div>
+                        {reservation.service?.categorie && (
+                          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+                            {reservation.service.categorie}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "20px" }}>{reservation.demandeur?.avatar || "👤"}</span>
+                        <div>
+                          <div style={{ fontWeight: "500", color: "#1a202c" }}>
+                            {reservation.demandeur?.prenom} {reservation.demandeur?.nom}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+                            {reservation.demandeur?.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "20px" }}>{reservation.prestataire?.avatar || "👤"}</span>
+                        <div>
+                          <div style={{ fontWeight: "500", color: "#1a202c" }}>
+                            {reservation.prestataire?.prenom} {reservation.prestataire?.nom}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+                            {reservation.prestataire?.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px 20px", fontSize: "13px", color: "#475569" }}>
+                      {formatDate(reservation.date_debut)}
+                    </td>
+                    <td style={{ padding: "16px 20px", fontWeight: "600", color: "#1a202c" }}>
+                      {reservation.service?.prix?.toLocaleString()} FCFA
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <span style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "4px 12px",
+                        borderRadius: "20px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        background: reservation.statut === "confirmee" ? "#dcfce7" :
+                                  reservation.statut === "terminee" ? "#e0f2fe" :
+                                  reservation.statut === "annulee" ? "#fee2e2" : "#fef3c7",
+                        color: reservation.statut === "confirmee" ? "#16a34a" :
+                               reservation.statut === "terminee" ? "#3b82f6" :
+                               reservation.statut === "annulee" ? "#ef4444" : "#d97706"
+                      }}>
+                        <span>{getStatutIcon(reservation.statut)}</span>
+                        {getStatutTexte(reservation.statut)}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 20px", textAlign: "center" }}>
+                      <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                        <button 
+                          onClick={() => {
+                            setSelectedReservation(reservation);
+                            setShowModal(true);
+                          }}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            border: "none",
+                            background: "#eef2ff",
+                            color: "#4F46E5",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "16px",
+                            transition: "all 0.3s ease"
+                          }}
+                          title="Voir détails"
+                        >
+                          👁️
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(reservation.id)}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            border: "none",
+                            background: "#fee2e2",
+                            color: "#ef4444",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "16px",
+                            transition: "all 0.3s ease"
+                          }}
+                          title="Supprimer"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal Détails */}
+        {showModal && selectedReservation && (
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999
+          }} onClick={() => setShowModal(false)}>
+            <div style={{
+              background: "white",
+              borderRadius: "20px",
+              width: "90%",
+              maxWidth: "700px",
+              maxHeight: "90vh",
+              overflowY: "auto"
+            }} onClick={(e) => e.stopPropagation()}>
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "24px 32px",
+                borderBottom: "1px solid #f1f5f9"
+              }}>
+                <h2 style={{
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  color: "#1a202c",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px"
+                }}>
+                  <span style={{ fontSize: "24px" }}>📋</span>
+                  Réservation #{selectedReservation.id}
+                </h2>
+                <button 
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    border: "none",
+                    background: "#f1f5f9",
+                    borderRadius: "50%",
+                    fontSize: "18px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#64748b"
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ padding: "32px" }}>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "16px"
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Service</label>
+                    <p style={{ fontSize: "14px", color: "#1e293b", margin: 0, fontWeight: "500" }}>
+                      {selectedReservation.service?.nom || "-"}
+                    </p>
+                    {selectedReservation.service?.categorie && (
+                      <small style={{ color: "#94a3b8" }}>{selectedReservation.service.categorie}</small>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Prix</label>
+                    <p style={{ fontSize: "14px", color: "#1e293b", margin: 0, fontWeight: "600" }}>
+                      {selectedReservation.service?.prix?.toLocaleString()} FCFA
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Demandeur</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "20px" }}>{selectedReservation.demandeur?.avatar || "👤"}</span>
+                      <div>
+                        <p style={{ fontSize: "14px", color: "#1e293b", margin: 0, fontWeight: "500" }}>
+                          {selectedReservation.demandeur?.prenom} {selectedReservation.demandeur?.nom}
+                        </p>
+                        <small style={{ color: "#94a3b8", display: "block" }}>{selectedReservation.demandeur?.email}</small>
+                        <small style={{ color: "#94a3b8" }}>{selectedReservation.demandeur?.telephone}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Prestataire</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "20px" }}>{selectedReservation.prestataire?.avatar || "👤"}</span>
+                      <div>
+                        <p style={{ fontSize: "14px", color: "#1e293b", margin: 0, fontWeight: "500" }}>
+                          {selectedReservation.prestataire?.prenom} {selectedReservation.prestataire?.nom}
+                        </p>
+                        <small style={{ color: "#94a3b8", display: "block" }}>{selectedReservation.prestataire?.email}</small>
+                        <small style={{ color: "#94a3b8" }}>{selectedReservation.prestataire?.telephone}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Date de début</label>
+                    <p style={{ fontSize: "14px", color: "#1e293b", margin: 0 }}>
+                      {formatDate(selectedReservation.date_debut)}
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Statut</label>
+                    <select 
+                      value={selectedReservation.statut}
+                      onChange={(e) => handleUpdateStatut(selectedReservation.id, e.target.value)}
+                      disabled={updating}
+                      style={{
+                        padding: "8px 12px",
+                        border: `2px solid ${getStatusColor(selectedReservation.statut)}`,
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        background: "white",
+                        cursor: "pointer",
+                        outline: "none"
+                      }}
+                    >
+                      <option value="en_attente">⏳ En attente</option>
+                      <option value="confirmee">✅ Confirmée</option>
+                      <option value="terminee">🏁 Terminée</option>
+                      <option value="annulee">❌ Annulée</option>
+                    </select>
+                  </div>
+
+                  {selectedReservation.commentaire && (
+                    <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Commentaire</label>
+                      <div style={{
+                        background: "#f8fafc",
+                        padding: "12px 16px",
+                        borderRadius: "8px",
+                        fontStyle: "italic",
+                        color: "#475569"
+                      }}>
+                        {selectedReservation.commentaire}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Date de création</label>
+                    <p style={{ fontSize: "14px", color: "#1e293b", margin: 0 }}>
+                      {new Date(selectedReservation.created_at).toLocaleString('fr-FR')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+                padding: "20px 32px",
+                borderTop: "1px solid #f1f5f9",
+                background: "#fafbfc",
+                borderRadius: "0 0 20px 20px"
+              }}>
+                <button 
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    padding: "10px 24px",
+                    background: "#f1f5f9",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    color: "#475569",
+                    cursor: "pointer"
+                  }}
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Animation styles */}
+      <style>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
+    </DashboardLayout>
+  );
+};
 
 export default ReservationsAdmin;
