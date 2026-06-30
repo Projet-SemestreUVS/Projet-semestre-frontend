@@ -1,7 +1,9 @@
-// src/pages/prestataire/Messages.tsx
+// src/pages/demandeur/Messages.tsx
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import PrestataireSidebar from "../../components/dashboard/PrestataireSidebar";
+import DemandeurSidebar from "../../components/dashboard/DemandeurSidebar";
+import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/dashboard.css";
 
 interface Message {
@@ -29,6 +31,7 @@ interface Conversation {
 }
 
 const Messages = () => {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUser, setSelectedUser] = useState<Conversation | null>(null);
@@ -37,11 +40,38 @@ const Messages = () => {
   const [sending, setSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [prestataireInfo, setPrestataireInfo] = useState({ id: 1, nom: "Prestataire", prenom: "John" });
+  
+  // Informations du demandeur connecté
+  const [demandeurInfo, setDemandeurInfo] = useState({ 
+    id: 1, 
+    nom: "Diop", 
+    prenom: "Aminata" 
+  });
 
   useEffect(() => {
+    if (user) {
+      setDemandeurInfo({
+        id: user.id,
+        nom: user.nom || "Diop",
+        prenom: user.prenom || "Aminata"
+      });
+    } else {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setDemandeurInfo({
+            id: userData.id || 1,
+            nom: userData.nom || "Diop",
+            prenom: userData.prenom || "Aminata"
+          });
+        } catch (e) {
+          console.error("Erreur parsing user:", e);
+        }
+      }
+    }
     loadConversations();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -60,96 +90,167 @@ const Messages = () => {
   const loadConversations = () => {
     setLoading(true);
     
-    // Données mockées pour les conversations du prestataire
-    const mockConversations: Conversation[] = [
-      {
-        id: 1,
-        nom: "Dupont",
-        prenom: "Jean",
-        email: "jean.dupont@email.com",
-        dernierMessage: "Bonjour, quand pouvez-vous intervenir ?",
-        dernierMessageDate: "2024-06-15T10:30:00",
-        nonLu: 2,
-      },
-      {
-        id: 2,
-        nom: "Lambert",
-        prenom: "Marie",
-        email: "marie.lambert@email.com",
-        dernierMessage: "Merci pour votre intervention !",
-        dernierMessageDate: "2024-06-14T14:20:00",
-        nonLu: 0,
-      },
-      {
-        id: 3,
-        nom: "Diop",
-        prenom: "Abdoulaye",
-        email: "abdoulaye.diop@email.com",
-        dernierMessage: "Je confirme ma réservation pour demain",
-        dernierMessageDate: "2024-06-13T09:15:00",
-        nonLu: 1,
-      },
-      {
-        id: 4,
-        nom: "Martin",
-        prenom: "Sophie",
-        email: "sophie.martin@email.com",
-        dernierMessage: "Pouvez-vous me rappeler ?",
-        dernierMessageDate: "2024-06-12T16:45:00",
-        nonLu: 0,
-      },
-    ];
-
-    setConversations(mockConversations);
+    // Récupérer les réservations depuis localStorage
+    const storedReservations = localStorage.getItem("reservations");
+    let prestataires: { id: number; nom: string; prenom: string; email: string; dernierMessage: string; date: string }[] = [];
+    
+    if (storedReservations) {
+      const reservations = JSON.parse(storedReservations);
+      // Filtrer les réservations du demandeur connecté
+      const demandeurReservations = reservations.filter((r: any) => r.demandeur_id === demandeurInfo.id);
+      
+      // Extraire les prestataires uniques avec leurs informations
+      const prestatairesMap = new Map();
+      demandeurReservations.forEach((r: any) => {
+        if (!prestatairesMap.has(r.prestataire_id)) {
+          prestatairesMap.set(r.prestataire_id, {
+            id: r.prestataire_id,
+            nom: r.prestataire_nom || "Tech",
+            prenom: r.prestataire_prenom || "Alpha",
+            email: r.prestataire_email || `prestataire${r.prestataire_id}@email.com`,
+            dernierMessage: "Bonjour, votre service a été réservé",
+            date: r.created_at || new Date().toISOString()
+          });
+        }
+      });
+      prestataires = Array.from(prestatairesMap.values());
+    }
+    
+    // Si pas de prestataires, utiliser les données mockées avec noms sénégalais
+    if (prestataires.length === 0) {
+      prestataires = [
+        { 
+          id: 2, 
+          nom: "Tech", 
+          prenom: "Alpha", 
+          email: "alpha.tech@kayjob.sn",
+          dernierMessage: "Bonjour, je confirme l'intervention pour demain",
+          date: new Date(Date.now() - 3600000).toISOString()
+        },
+        { 
+          id: 3, 
+          nom: "Clean", 
+          prenom: "Service", 
+          email: "service.clean@kayjob.sn",
+          dernierMessage: "Merci pour votre réservation ! Je vous contacte bientôt.",
+          date: new Date(Date.now() - 7200000).toISOString()
+        },
+        { 
+          id: 4, 
+          nom: "Beauty", 
+          prenom: "Studio", 
+          email: "studio.beauty@kayjob.sn",
+          dernierMessage: "Je confirme votre rendez-vous pour demain à 14h.",
+          date: new Date(Date.now() - 86400000).toISOString()
+        },
+        { 
+          id: 5, 
+          nom: "Mobility", 
+          prenom: "Service", 
+          email: "service.mobility@kayjob.sn",
+          dernierMessage: "Votre chauffeur sera là dans 30 minutes.",
+          date: new Date(Date.now() - 172800000).toISOString()
+        }
+      ];
+    }
+    
+    // Récupérer les messages existants
+    const storedMessages = localStorage.getItem("messages");
+    let allMessages: Message[] = [];
+    if (storedMessages) {
+      allMessages = JSON.parse(storedMessages);
+    }
+    
+    const conversationsData = prestataires.map((p) => {
+      // Compter les messages non lus de ce prestataire
+      const nonLu = allMessages.filter(
+        (m) => m.sender_id === p.id && m.receiver_id === demandeurInfo.id && !m.lu
+      ).length;
+      
+      return {
+        id: p.id,
+        nom: p.nom,
+        prenom: p.prenom,
+        email: p.email,
+        dernierMessage: p.dernierMessage || "Aucun message",
+        dernierMessageDate: p.date || new Date().toISOString(),
+        nonLu: nonLu || 0,
+      };
+    });
+    
+    setConversations(conversationsData);
     setLoading(false);
   };
 
   const loadMessages = (userId: number) => {
-    // Données mockées pour les messages avec l'utilisateur sélectionné
-    const mockMessages: Message[] = [
-      {
-        id: 1,
-        sender_id: userId,
-        receiver_id: prestataireInfo.id,
-        contenu: "Bonjour, je suis intéressé par votre service de plomberie",
-        created_at: "2024-06-15T09:00:00",
-        lu: true,
-        sender_nom: "Dupont",
-        sender_prenom: "Jean",
-      },
-      {
-        id: 2,
-        sender_id: prestataireInfo.id,
-        receiver_id: userId,
-        contenu: "Bonjour, merci pour votre message. Quand souhaitez-vous intervenir ?",
-        created_at: "2024-06-15T09:30:00",
-        lu: true,
-        receiver_nom: "Dupont",
-        receiver_prenom: "Jean",
-      },
-      {
-        id: 3,
-        sender_id: userId,
-        receiver_id: prestataireInfo.id,
-        contenu: "Je suis disponible demain matin, est-ce possible ?",
-        created_at: "2024-06-15T10:00:00",
-        lu: false,
-        sender_nom: "Dupont",
-        sender_prenom: "Jean",
-      },
-      {
-        id: 4,
-        sender_id: prestataireInfo.id,
-        receiver_id: userId,
-        contenu: "Oui, je peux passer demain à 10h. L'adresse ?",
-        created_at: "2024-06-15T10:15:00",
-        lu: true,
-        receiver_nom: "Dupont",
-        receiver_prenom: "Jean",
-      },
-    ];
-
-    setMessages(mockMessages);
+    // Récupérer les messages du localStorage
+    const storedMessages = localStorage.getItem("messages");
+    let allMessages: Message[] = [];
+    
+    if (storedMessages) {
+      allMessages = JSON.parse(storedMessages);
+    }
+    
+    // Filtrer les messages entre le demandeur et le prestataire sélectionné
+    const filteredMessages = allMessages.filter(
+      (m) => 
+        (m.sender_id === userId && m.receiver_id === demandeurInfo.id) ||
+        (m.sender_id === demandeurInfo.id && m.receiver_id === userId)
+    );
+    
+    if (filteredMessages.length > 0) {
+      setMessages(filteredMessages);
+    } else {
+      // Messages mockés avec conversations naturelles
+      const userInfo = conversations.find(c => c.id === userId);
+      const mockMessages: Message[] = [
+        {
+          id: 1,
+          sender_id: userId,
+          receiver_id: demandeurInfo.id,
+          contenu: `Bonjour ${demandeurInfo.prenom}, je vous confirme l'intervention pour demain à 10h.`,
+          created_at: new Date(Date.now() - 3600000).toISOString(),
+          lu: true,
+          sender_nom: userInfo?.nom,
+          sender_prenom: userInfo?.prenom,
+        },
+        {
+          id: 2,
+          sender_id: demandeurInfo.id,
+          receiver_id: userId,
+          contenu: "Parfait, merci pour votre confirmation. J'attends votre arrivée.",
+          created_at: new Date(Date.now() - 1800000).toISOString(),
+          lu: true,
+        },
+        {
+          id: 3,
+          sender_id: userId,
+          receiver_id: demandeurInfo.id,
+          contenu: "N'hésitez pas à me contacter si vous avez des questions.",
+          created_at: new Date(Date.now() - 600000).toISOString(),
+          lu: false,
+          sender_nom: userInfo?.nom,
+          sender_prenom: userInfo?.prenom,
+        },
+      ];
+      setMessages(mockMessages);
+    }
+    
+    // Marquer les messages comme lus
+    const updatedMessages = allMessages.map((m) => {
+      if (m.sender_id === userId && m.receiver_id === demandeurInfo.id && !m.lu) {
+        return { ...m, lu: true };
+      }
+      return m;
+    });
+    localStorage.setItem("messages", JSON.stringify(updatedMessages));
+    
+    // Mettre à jour le compteur non lu
+    setConversations(prev => 
+      prev.map(c => 
+        c.id === userId ? { ...c, nonLu: 0 } : c
+      )
+    );
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -160,13 +261,23 @@ const Messages = () => {
     
     // Créer un nouveau message
     const newMsg: Message = {
-      id: messages.length + 1,
-      sender_id: prestataireInfo.id,
+      id: Date.now(),
+      sender_id: demandeurInfo.id,
       receiver_id: selectedUser.id,
       contenu: newMessage,
       created_at: new Date().toISOString(),
       lu: false,
+      sender_nom: demandeurInfo.nom,
+      sender_prenom: demandeurInfo.prenom,
+      receiver_nom: selectedUser.nom,
+      receiver_prenom: selectedUser.prenom
     };
+    
+    // Sauvegarder dans localStorage
+    const storedMessages = localStorage.getItem("messages");
+    let allMessages: Message[] = storedMessages ? JSON.parse(storedMessages) : [];
+    allMessages.push(newMsg);
+    localStorage.setItem("messages", JSON.stringify(allMessages));
     
     setMessages([...messages, newMsg]);
     setNewMessage("");
@@ -197,13 +308,17 @@ const Messages = () => {
     }
   };
 
+  const getInitials = (prenom: string, nom: string) => {
+    return `${prenom.charAt(0)}${nom.charAt(0)}`;
+  };
+
   const filteredConversations = conversations.filter(conv =>
     `${conv.prenom} ${conv.nom}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
     return (
-      <DashboardLayout sidebar={<PrestataireSidebar />}>
+      <DashboardLayout sidebar={<DemandeurSidebar />}>
         <div className="loading-container">
           <div className="spinner"></div>
           <p>Chargement des messages...</p>
@@ -213,14 +328,14 @@ const Messages = () => {
   }
 
   return (
-    <DashboardLayout sidebar={<PrestataireSidebar />}>
-      <div className="dashboard-prestataire">
+    <DashboardLayout sidebar={<DemandeurSidebar />}>
+      <div className="messages-page">
         <div className="page-header">
           <h1>
             <i className="bi bi-chat-dots"></i>
             Messages
           </h1>
-          <p>Discutez avec vos clients</p>
+          <p>Discutez avec vos prestataires</p>
         </div>
 
         <div className="messages-container">
@@ -230,7 +345,7 @@ const Messages = () => {
               <i className="bi bi-search"></i>
               <input
                 type="text"
-                placeholder="Rechercher un client..."
+                placeholder="Rechercher un prestataire..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -240,6 +355,7 @@ const Messages = () => {
               <div className="empty-conversations">
                 <i className="bi bi-chat"></i>
                 <p>Aucune conversation</p>
+                <span className="empty-sub">Commencez à discuter avec vos prestataires</span>
               </div>
             ) : (
               filteredConversations.map((conv) => (
@@ -249,7 +365,9 @@ const Messages = () => {
                   onClick={() => setSelectedUser(conv)}
                 >
                   <div className="conversation-avatar">
-                    <i className="bi bi-person-circle"></i>
+                    <span className="avatar-initials">
+                      {getInitials(conv.prenom, conv.nom)}
+                    </span>
                     {conv.nonLu > 0 && <span className="badge-nonlu">{conv.nonLu}</span>}
                   </div>
                   <div className="conversation-info">
@@ -270,10 +388,16 @@ const Messages = () => {
               <>
                 <div className="chat-header">
                   <div className="chat-user-info">
-                    <i className="bi bi-person-circle"></i>
+                    <div className="chat-avatar">
+                      <span className="avatar-initials large">
+                        {getInitials(selectedUser.prenom, selectedUser.nom)}
+                      </span>
+                    </div>
                     <div>
                       <h3>{selectedUser.prenom} {selectedUser.nom}</h3>
-                      <span className="user-email">{selectedUser.email}</span>
+                      <span className="user-email">
+                        <i className="bi bi-envelope"></i> {selectedUser.email}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -283,17 +407,24 @@ const Messages = () => {
                     <div className="no-messages">
                       <i className="bi bi-chat-dots"></i>
                       <p>Aucun message</p>
-                      <p className="small">Soyez le premier à envoyer un message</p>
+                      <span className="no-messages-sub">Soyez le premier à envoyer un message</span>
                     </div>
                   ) : (
                     messages.map((message) => {
-                      const isOwnMessage = message.sender_id === prestataireInfo.id;
+                      const isOwnMessage = message.sender_id === demandeurInfo.id;
+                      const senderName = !isOwnMessage 
+                        ? `${message.sender_prenom || selectedUser.prenom} ${message.sender_nom || selectedUser.nom}`
+                        : '';
+                      
                       return (
                         <div
                           key={message.id}
                           className={`message-item ${isOwnMessage ? "own-message" : "other-message"}`}
                         >
                           <div className="message-bubble">
+                            {!isOwnMessage && (
+                              <div className="message-sender">{senderName}</div>
+                            )}
                             <div className="message-content">{message.contenu}</div>
                             <div className="message-time">{formatDate(message.created_at)}</div>
                           </div>
@@ -312,7 +443,7 @@ const Messages = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                   />
                   <button type="submit" disabled={sending || !newMessage.trim()}>
-                    <i className="bi bi-send"></i>
+                    {sending ? <i className="bi bi-hourglass-split"></i> : <i className="bi bi-send"></i>}
                   </button>
                 </form>
               </>
@@ -320,7 +451,7 @@ const Messages = () => {
               <div className="no-conversation-selected">
                 <i className="bi bi-chat-dots"></i>
                 <h3>Sélectionnez une conversation</h3>
-                <p>Choisissez un client pour commencer à discuter</p>
+                <p>Choisissez un prestataire pour commencer à discuter</p>
               </div>
             )}
           </div>
@@ -328,6 +459,15 @@ const Messages = () => {
       </div>
 
       <style>{`
+        .messages-page {
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
         .messages-container {
           display: flex;
           gap: 1.5rem;
@@ -338,12 +478,14 @@ const Messages = () => {
           min-height: 600px;
         }
 
+        /* Conversations List */
         .conversations-list {
-          width: 320px;
+          width: 350px;
           border-right: 1px solid #e2e8f0;
           background: white;
           display: flex;
           flex-direction: column;
+          flex-shrink: 0;
         }
 
         .search-conversation {
@@ -363,13 +505,14 @@ const Messages = () => {
           border: none;
           outline: none;
           font-size: 0.875rem;
+          background: transparent;
         }
 
         .conversation-item {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          padding: 1rem;
+          padding: 0.875rem 1rem;
           cursor: pointer;
           transition: all 0.3s ease;
           border-bottom: 1px solid #f1f5f9;
@@ -381,22 +524,30 @@ const Messages = () => {
 
         .conversation-item.active {
           background: #eef2ff;
+          border-left: 3px solid #354dd4;
         }
 
         .conversation-avatar {
           position: relative;
           width: 48px;
           height: 48px;
-          background: #f1f5f9;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, #354dd4, #4da3ff);
+          color: white;
         }
 
-        .conversation-avatar i {
-          font-size: 1.5rem;
-          color: #354dd4;
+        .avatar-initials {
+          font-size: 0.875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .avatar-initials.large {
+          font-size: 1.25rem;
         }
 
         .badge-nonlu {
@@ -408,10 +559,13 @@ const Messages = () => {
           font-size: 0.6rem;
           padding: 0.125rem 0.375rem;
           border-radius: 10px;
+          min-width: 18px;
+          text-align: center;
         }
 
         .conversation-info {
           flex: 1;
+          min-width: 0;
         }
 
         .conversation-name {
@@ -432,8 +586,10 @@ const Messages = () => {
         .conversation-date {
           font-size: 0.65rem;
           color: #94a3b8;
+          flex-shrink: 0;
         }
 
+        /* Chat Area */
         .chat-area {
           flex: 1;
           display: flex;
@@ -450,12 +606,18 @@ const Messages = () => {
         .chat-user-info {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem;
         }
 
-        .chat-user-info i {
-          font-size: 2rem;
-          color: #354dd4;
+        .chat-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #354dd4, #4da3ff);
+          color: white;
         }
 
         .chat-user-info h3 {
@@ -467,15 +629,19 @@ const Messages = () => {
         .user-email {
           font-size: 0.7rem;
           color: #64748b;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
         }
 
+        /* Messages */
         .chat-messages {
           flex: 1;
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.75rem;
           max-height: 500px;
           min-height: 400px;
         }
@@ -493,9 +659,10 @@ const Messages = () => {
         }
 
         .message-bubble {
-          max-width: 70%;
+          max-width: 75%;
           padding: 0.75rem 1rem;
           border-radius: 18px;
+          position: relative;
         }
 
         .own-message .message-bubble {
@@ -511,9 +678,21 @@ const Messages = () => {
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
+        .message-sender {
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #354dd4;
+          margin-bottom: 0.25rem;
+        }
+
+        .other-message .message-sender {
+          color: #354dd4;
+        }
+
         .message-content {
           font-size: 0.875rem;
           line-height: 1.4;
+          word-wrap: break-word;
         }
 
         .message-time {
@@ -523,6 +702,7 @@ const Messages = () => {
           text-align: right;
         }
 
+        /* Input Area */
         .chat-input-area {
           padding: 1rem 1.5rem;
           background: white;
@@ -538,6 +718,7 @@ const Messages = () => {
           border-radius: 25px;
           outline: none;
           font-size: 0.875rem;
+          transition: border-color 0.3s ease;
         }
 
         .chat-input-area input:focus {
@@ -545,14 +726,17 @@ const Messages = () => {
         }
 
         .chat-input-area button {
-          width: 42px;
-          height: 42px;
+          width: 44px;
+          height: 44px;
           background: #354dd4;
           color: white;
           border: none;
           border-radius: 50%;
           cursor: pointer;
           transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .chat-input-area button:hover:not(:disabled) {
@@ -565,15 +749,40 @@ const Messages = () => {
           cursor: not-allowed;
         }
 
+        /* Empty States */
         .empty-conversations, .no-messages, .no-conversation-selected {
           text-align: center;
           padding: 2rem;
           color: #94a3b8;
         }
 
+        .empty-conversations i,
+        .no-messages i,
         .no-conversation-selected i {
           font-size: 3rem;
+          color: #cbd5e1;
           margin-bottom: 1rem;
+          display: block;
+        }
+
+        .empty-conversations h3,
+        .no-conversation-selected h3 {
+          font-size: 1rem;
+          color: #1e293b;
+          margin-bottom: 0.25rem;
+        }
+
+        .empty-sub,
+        .no-messages-sub {
+          font-size: 0.8rem;
+          color: #94a3b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+          .conversations-list {
+            width: 300px;
+          }
         }
 
         @media (max-width: 768px) {
@@ -583,8 +792,37 @@ const Messages = () => {
           
           .conversations-list {
             width: 100%;
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
+            border-right: none;
+            border-bottom: 1px solid #e2e8f0;
+          }
+          
+          .chat-messages {
+            max-height: 350px;
+            min-height: 250px;
+          }
+          
+          .message-bubble {
+            max-width: 85%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .chat-header {
+            padding: 0.75rem 1rem;
+          }
+          
+          .chat-messages {
+            padding: 1rem;
+          }
+          
+          .chat-input-area {
+            padding: 0.75rem 1rem;
+          }
+          
+          .chat-user-info h3 {
+            font-size: 0.875rem;
           }
         }
       `}</style>

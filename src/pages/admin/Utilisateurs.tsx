@@ -2,17 +2,31 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import AdminSidebar from "../../components/dashboard/AdminSidebar";
-import api from "../../services/api";
 
 interface User {
   id: number;
   nom: string;
   prenom: string;
   email: string;
-  telephone?: string;
-  role: string;
-  localisation?: string;
-  created_at?: string;
+  telephone: string;
+  localisation: string;
+  role: "admin" | "prestataire" | "demandeur";
+  status: "actif" | "inactif" | "suspendu";
+  created_at: string;
+  last_login?: string;
+  avatar?: string;
+  bio?: string;
+}
+
+interface UserStats {
+  total: number;
+  admins: number;
+  prestataires: number;
+  demandeurs: number;
+  actifs: number;
+  inactifs: number;
+  suspendus: number;
+  nouveaux: number;
 }
 
 const Utilisateurs = () => {
@@ -22,7 +36,12 @@ const Utilisateurs = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [showStats, setShowStats] = useState(true);
+  const [filterRole, setFilterRole] = useState("tous");
+  const [filterStatus, setFilterStatus] = useState("tous");
+  const [sortBy, setSortBy] = useState<"date" | "name" | "role">("date");
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const [form, setForm] = useState({
     nom: "",
@@ -30,27 +49,17 @@ const Utilisateurs = () => {
     email: "",
     telephone: "",
     localisation: "",
-    role: "demandeur",
-    password: "",
-    password_confirmation: "",
+    role: "demandeur" as "admin" | "prestataire" | "demandeur",
+    status: "actif" as "actif" | "inactif" | "suspendu",
+    bio: "",
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  // Initialisation des données
   useEffect(() => {
-    const result = users.filter(
-      (u) =>
-        u.nom?.toLowerCase().includes(search.toLowerCase()) ||
-        u.prenom?.toLowerCase().includes(search.toLowerCase()) ||
-        u.email?.toLowerCase().includes(search.toLowerCase())
-    );
-    setFilteredUsers(result);
-  }, [search, users]);
-
-  const fetchUsers = async () => {
     try {
+<<<<<<< HEAD
       setLoading(true);
       const res = await api.get("/users");
       console.log("Réponse API:", res.data);
@@ -63,31 +72,128 @@ const Utilisateurs = () => {
         usersData = res.data;
       } else if (res.data.users) {
         usersData = res.data.users;
+=======
+      const savedUsers = localStorage.getItem("users");
+      if (savedUsers) {
+        try {
+          const parsed = JSON.parse(savedUsers);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setUsers(parsed);
+            setFilteredUsers(parsed);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Erreur de parsing:", e);
+        }
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
       }
-      
-      setUsers(usersData);
-      setFilteredUsers(usersData);
+      initializeDefaultUsers();
     } catch (err) {
-      console.error("Erreur fetchUsers:", err);
-      alert("Erreur lors du chargement des utilisateurs");
-    } finally {
+      console.error("Erreur d'initialisation:", err);
       setLoading(false);
     }
+  }, []);
+
+  const initializeDefaultUsers = () => {
+    const defaultUsers: User[] = [
+      {
+        id: 1,
+        nom: "Diop",
+        prenom: "Ahmadou",
+        email: "ahmadou.diop@kayjob.com",
+        telephone: "+221 77 123 45 67",
+        localisation: "Dakar, Sénégal",
+        role: "admin",
+        status: "actif",
+        created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+        last_login: new Date(Date.now() - 3600000).toISOString(),
+        avatar: "👨‍💼",
+        bio: "Administrateur principal de la plateforme KayJob"
+      },
+      {
+        id: 2,
+        nom: "Fall",
+        prenom: "Fatou",
+        email: "fatou.fall@kayjob.com",
+        telephone: "+221 78 987 65 43",
+        localisation: "Thiès, Sénégal",
+        role: "prestataire",
+        status: "actif",
+        created_at: new Date(Date.now() - 86400000 * 25).toISOString(),
+        last_login: new Date(Date.now() - 7200000).toISOString(),
+        avatar: "👩‍🏫",
+        bio: "Professeur de mathématiques expérimentée"
+      },
+      {
+        id: 3,
+        nom: "Ndiaye",
+        prenom: "Moussa",
+        email: "moussa.ndiaye@kayjob.com",
+        telephone: "+221 76 456 78 90",
+        localisation: "Saint-Louis, Sénégal",
+        role: "demandeur",
+        status: "actif",
+        created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
+        last_login: new Date(Date.now() - 86400000).toISOString(),
+        avatar: "👨‍💻",
+        bio: "Demandeur de services divers"
+      },
+      {
+        id: 4,
+        nom: "Sow",
+        prenom: "Aminata",
+        email: "aminata.sow@kayjob.com",
+        telephone: "+221 77 789 01 23",
+        localisation: "Dakar, Sénégal",
+        role: "prestataire",
+        status: "actif",
+        created_at: new Date(Date.now() - 86400000 * 18).toISOString(),
+        last_login: new Date(Date.now() - 86400000 * 2).toISOString(),
+        avatar: "👩‍🔧",
+        bio: "Plombière professionnelle"
+      },
+      {
+        id: 5,
+        nom: "Ba",
+        prenom: "Mamadou",
+        email: "mamadou.ba@kayjob.com",
+        telephone: "+221 70 234 56 78",
+        localisation: "Touba, Sénégal",
+        role: "demandeur",
+        status: "inactif",
+        created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+        last_login: new Date(Date.now() - 86400000 * 10).toISOString(),
+        avatar: "👨‍🎨",
+        bio: "À la recherche de services artistiques"
+      },
+      {
+        id: 6,
+        nom: "Diallo",
+        prenom: "Mariama",
+        email: "mariama.diallo@kayjob.com",
+        telephone: "+221 78 345 67 89",
+        localisation: "Dakar, Sénégal",
+        role: "admin",
+        status: "actif",
+        created_at: new Date(Date.now() - 86400000 * 12).toISOString(),
+        last_login: new Date(Date.now() - 3600000).toISOString(),
+        avatar: "👩‍💼",
+        bio: "Administratrice et coach professionnelle"
+      }
+    ];
+    setUsers(defaultUsers);
+    setFilteredUsers(defaultUsers);
+    localStorage.setItem("users", JSON.stringify(defaultUsers));
+    setLoading(false);
   };
 
-  const generatePassword = () => {
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let password = "";
-    for (let i = 0; i < 10; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setForm({
-      ...form,
-      password,
-      password_confirmation: password,
-    });
-  };
+  // Filtrage et tri
+  useEffect(() => {
+    try {
+      let result = [...users];
 
+<<<<<<< HEAD
   const handleSubmit = async () => {
 
     if (!form.nom.trim()) {
@@ -114,9 +220,62 @@ const Utilisateurs = () => {
       alert("Les mots de passe ne correspondent pas");
       return;
     }
+=======
+      // Recherche
+      if (search) {
+        const searchLower = search.toLowerCase();
+        result = result.filter(
+          (u) =>
+            u.nom.toLowerCase().includes(searchLower) ||
+            u.prenom.toLowerCase().includes(searchLower) ||
+            u.email.toLowerCase().includes(searchLower) ||
+            u.localisation.toLowerCase().includes(searchLower) ||
+            u.bio?.toLowerCase().includes(searchLower)
+        );
+      }
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
 
-    setSubmitting(true);
+      // Filtre par rôle
+      if (filterRole !== "tous") {
+        result = result.filter((u) => u.role === filterRole);
+      }
+
+      // Filtre par statut
+      if (filterStatus !== "tous") {
+        result = result.filter((u) => u.status === filterStatus);
+      }
+
+      // Tri
+      if (sortBy === "date") {
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      } else if (sortBy === "name") {
+        result.sort((a, b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`));
+      } else if (sortBy === "role") {
+        const roleOrder = { admin: 0, prestataire: 1, demandeur: 2 };
+        result.sort((a, b) => roleOrder[a.role] - roleOrder[b.role]);
+      }
+
+      setFilteredUsers(result);
+    } catch (err) {
+      console.error("Erreur de filtrage:", err);
+    }
+  }, [search, filterRole, filterStatus, sortBy, users]);
+
+  // Sauvegarde automatique
+  useEffect(() => {
+    if (users.length > 0) {
+      try {
+        localStorage.setItem("users", JSON.stringify(users));
+      } catch (err) {
+        console.error("Erreur de sauvegarde:", err);
+      }
+    }
+  }, [users]);
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
     
+<<<<<<< HEAD
     try {
       if (editingUser) {
 
@@ -158,92 +317,306 @@ const Utilisateurs = () => {
       }
     } finally {
       setSubmitting(false);
+=======
+    if (!form.nom.trim()) errors.nom = "Le nom est requis";
+    else if (form.nom.length < 2) errors.nom = "Le nom doit contenir au moins 2 caractères";
+    
+    if (!form.prenom.trim()) errors.prenom = "Le prénom est requis";
+    else if (form.prenom.length < 2) errors.prenom = "Le prénom doit contenir au moins 2 caractères";
+    
+    if (!form.email.trim()) errors.email = "L'email est requis";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      errors.email = "Email invalide";
+    }
+    
+    if (form.telephone && !/^[\d\s\+\(\)\-]{8,}$/.test(form.telephone)) {
+      errors.telephone = "Numéro de téléphone invalide";
+    }
+
+    // Vérifier si l'email existe déjà
+    const emailExists = users.some(
+      (u) => u.email.toLowerCase() === form.email.toLowerCase() && 
+      u.id !== editingUser?.id
+    );
+    if (emailExists) {
+      errors.email = "Cet email est déjà utilisé";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = () => {
+    if (!validateForm()) return;
+
+    const now = new Date().toISOString();
+    
+    if (editingUser) {
+      // Modification
+      setUsers(prev =>
+        prev.map(u =>
+          u.id === editingUser.id
+            ? {
+                ...u,
+                nom: form.nom.trim(),
+                prenom: form.prenom.trim(),
+                email: form.email.trim(),
+                telephone: form.telephone.trim(),
+                localisation: form.localisation.trim(),
+                role: form.role,
+                status: form.status,
+                bio: form.bio.trim(),
+              }
+            : u
+        )
+      );
+      showNotification("Utilisateur modifié avec succès !", "success");
+    } else {
+      // Création
+      const newUser: User = {
+        id: Date.now(),
+        nom: form.nom.trim(),
+        prenom: form.prenom.trim(),
+        email: form.email.trim(),
+        telephone: form.telephone.trim(),
+        localisation: form.localisation.trim(),
+        role: form.role,
+        status: form.status,
+        created_at: now,
+        last_login: now,
+        avatar: getAvatar(form.prenom, form.nom),
+        bio: form.bio.trim() || undefined,
+      };
+      setUsers(prev => [newUser, ...prev]);
+      showNotification("Utilisateur créé avec succès !", "success");
+    }
+
+    closeModal();
+  };
+
+  const getAvatar = (prenom: string, nom: string): string => {
+    const avatars = ["👨‍💼", "👩‍💼", "👨‍💻", "👩‍💻", "👨‍🔧", "👩‍🔧", "👨‍🎨", "👩‍🎨", "🧑‍💼", "🧑‍💻", "🧑‍🔧", "🧑‍🎨"];
+    const index = (prenom.length + nom.length) % avatars.length;
+    return avatars[index];
+  };
+
+  const handleDelete = (id: number) => {
+    const userToDelete = users.find(u => u.id === id);
+    if (!userToDelete) return;
+
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${userToDelete.prenom} ${userToDelete.nom} ?`)) {
+      setUsers(prev => prev.filter(u => u.id !== id));
+      setSelectedUsers(prev => prev.filter(uid => uid !== id));
+      showNotification("Utilisateur supprimé avec succès !", "success");
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
     }
   };
 
-  const deleteUser = async (id: number) => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.");
-    if (!confirmDelete) return;
-
-    try {
-      await api.delete(`/users/${id}`);
-      alert("Utilisateur supprimé avec succès");
-      fetchUsers();
-    } catch (error: any) {
-      console.error("Erreur:", error);
-      alert(error.response?.data?.message || "Erreur lors de la suppression");
+  const handleBulkDelete = () => {
+    if (selectedUsers.length === 0) return;
+    
+    if (window.confirm(`Supprimer ${selectedUsers.length} utilisateur(s) sélectionné(s) ?`)) {
+      setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)));
+      setSelectedUsers([]);
+      setShowBulkActions(false);
+      showNotification(`${selectedUsers.length} utilisateur(s) supprimé(s) !`, "success");
     }
   };
 
-  const openEdit = (user: User) => {
-    setEditingUser(user);
-    setForm({
-      nom: user.nom,
-      prenom: user.prenom,
-      email: user.email,
-      telephone: user.telephone || "",
-      localisation: user.localisation || "",
-      role: user.role,
-      password: "",
-      password_confirmation: "",
-    });
-    setShowModal(true);
+  const handleBulkStatusUpdate = (status: "actif" | "inactif" | "suspendu") => {
+    if (selectedUsers.length === 0) return;
+    
+    setUsers(prev =>
+      prev.map(u =>
+        selectedUsers.includes(u.id) ? { ...u, status } : u
+      )
+    );
+    setSelectedUsers([]);
+    setShowBulkActions(false);
+    showNotification(`Statut mis à jour pour ${selectedUsers.length} utilisateur(s) !`, "success");
   };
 
-  const openCreate = () => {
-    setEditingUser(null);
-    setForm({
-      nom: "",
-      prenom: "",
-      email: "",
-      telephone: "",
-      localisation: "",
-      role: "demandeur",
-      password: "",
-      password_confirmation: "",
-    });
+  const handleToggleSelect = (id: number) => {
+    setSelectedUsers(prev =>
+      prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(u => u.id));
+    }
+  };
+
+  const openModal = (user?: User) => {
+    if (user) {
+      setEditingUser(user);
+      setForm({
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        telephone: user.telephone || "",
+        localisation: user.localisation || "",
+        role: user.role,
+        status: user.status,
+        bio: user.bio || "",
+      });
+    } else {
+      setEditingUser(null);
+      setForm({
+        nom: "",
+        prenom: "",
+        email: "",
+        telephone: "",
+        localisation: "",
+        role: "demandeur",
+        status: "actif",
+        bio: "",
+      });
+    }
+    setFormErrors({});
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setEditingUser(null);
+    setFormErrors({});
   };
 
-  const getRoleBadgeClass = (role: string) => {
+  const getRoleBadgeClass = (role: string): string => {
     switch (role) {
-      case "admin":
-        return "bg-danger";
-      case "prestataire":
-        return "bg-success";
-      default:
-        return "bg-primary";
+      case "admin": return "role-admin";
+      case "prestataire": return "role-prestataire";
+      default: return "role-demandeur";
     }
   };
 
-  const getRoleLabel = (role: string) => {
+  const getRoleIcon = (role: string): string => {
     switch (role) {
-      case "admin":
-        return "Administrateur";
-      case "prestataire":
-        return "Prestataire";
-      default:
-        return "Demandeur";
+      case "admin": return "👑";
+      case "prestataire": return "🔧";
+      default: return "👤";
     }
   };
 
-  const totalUsers = users.length;
-  const totalPrestataires = users.filter((u) => u.role === "prestataire").length;
-  const totalDemandeurs = users.filter((u) => u.role === "demandeur").length;
-  const totalAdmins = users.filter((u) => u.role === "admin").length;
+  const getStatusBadgeClass = (status: string): string => {
+    switch (status) {
+      case "actif": return "status-actif";
+      case "inactif": return "status-inactif";
+      default: return "status-suspendu";
+    }
+  };
+
+  const getStatusIcon = (status: string): string => {
+    switch (status) {
+      case "actif": return "🟢";
+      case "inactif": return "🔴";
+      default: return "🟡";
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = now.getTime() - past.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return "À l'instant";
+    if (minutes < 60) return `Il y a ${minutes} min`;
+    if (hours < 24) return `Il y a ${hours}h`;
+    if (days < 7) return `Il y a ${days}j`;
+    return formatDate(dateString);
+  };
+
+  const showNotification = (message: string, type: "success" | "error" = "success") => {
+    try {
+      const notification = document.createElement("div");
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        background: ${type === "success" ? "linear-gradient(135deg, #16a34a, #22c55e)" : "linear-gradient(135deg, #dc2626, #ef4444)"};
+        animation: slideIn 0.3s ease;
+        max-width: 400px;
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.style.opacity = "0";
+        notification.style.transform = "translateX(100%)";
+        notification.style.transition = "all 0.3s ease";
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    } catch (err) {
+      console.error("Erreur de notification:", err);
+    }
+  };
+
+  // Statistiques
+  const stats: UserStats = {
+    total: users.length,
+    admins: users.filter(u => u.role === "admin").length,
+    prestataires: users.filter(u => u.role === "prestataire").length,
+    demandeurs: users.filter(u => u.role === "demandeur").length,
+    actifs: users.filter(u => u.status === "actif").length,
+    inactifs: users.filter(u => u.status === "inactif").length,
+    suspendus: users.filter(u => u.status === "suspendu").length,
+    nouveaux: users.filter(u => {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return new Date(u.created_at) > weekAgo;
+    }).length,
+  };
 
   if (loading) {
     return (
       <DashboardLayout sidebar={<AdminSidebar />}>
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Chargement...</span>
-          </div>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column",
+          alignItems: "center", 
+          justifyContent: "center", 
+          minHeight: "400px", 
+          gap: "16px" 
+        }}>
+          <div style={{
+            width: "48px",
+            height: "48px",
+            border: "4px solid #e2e8f0",
+            borderTopColor: "#4F46E5",
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite"
+          }}></div>
+          <p>Chargement des utilisateurs...</p>
+          <style>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
         </div>
       </DashboardLayout>
     );
@@ -251,271 +624,888 @@ const Utilisateurs = () => {
 
   return (
     <DashboardLayout sidebar={<AdminSidebar />}>
-      <div className="container-fluid py-4">
-
-        {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <div style={{ padding: "24px 32px", maxWidth: "1400px", margin: "0 auto" }}>
+        {/* En-tête */}
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "flex-start", 
+          marginBottom: "32px", 
+          flexWrap: "wrap", 
+          gap: "16px" 
+        }}>
           <div>
-            <h2 className="fw-bold text-primary mb-1">
-              <i className="bi bi-people-fill me-2"></i>
+            <h1 style={{ 
+              fontSize: "28px", 
+              fontWeight: "700", 
+              color: "#1a202c", 
+              margin: "0 0 4px 0", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "12px" 
+            }}>
+              <span style={{ fontSize: "32px" }}>👥</span>
               Gestion des Utilisateurs
-            </h2>
-            <p className="text-muted mb-0">
-              Administration complète des comptes de la plateforme KayJob
+            </h1>
+            <p style={{ color: "#718096", fontSize: "15px", margin: 0 }}>
+              Gérez tous les utilisateurs de la plateforme KayJob
             </p>
           </div>
-          <button className="btn btn-primary rounded-pill px-4" onClick={openCreate}>
-            <i className="bi bi-plus-lg me-2"></i>
-            Nouvel utilisateur
-          </button>
-        </div>
-
-        {/* STATS CARDS */}
-        <div className="row g-4 mb-4">
-          <div className="col-sm-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <div className="display-6 text-primary mb-2 fw-bold">{totalUsers}</div>
-                <span className="text-muted">Total Utilisateurs</span>
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <div className="display-6 text-danger mb-2 fw-bold">{totalAdmins}</div>
-                <span className="text-muted">Administrateurs</span>
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <div className="display-6 text-success mb-2 fw-bold">{totalPrestataires}</div>
-                <span className="text-muted">Prestataires</span>
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <div className="display-6 text-info mb-2 fw-bold">{totalDemandeurs}</div>
-                <span className="text-muted">Demandeurs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* SEARCH BAR */}
-        <div className="card shadow-sm border-0 mb-4">
-          <div className="card-body">
-            <div className="input-group">
-              <span className="input-group-text bg-white border-end-0">
-                <i className="bi bi-search text-muted"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control border-start-0 ps-0"
-                placeholder="Rechercher par nom, prénom ou email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <button 
+              onClick={() => setShowStats(!showStats)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 20px",
+                background: "white",
+                color: "#4a5568",
+                border: "2px solid #e2e8f0",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              <span>📊</span>
+              {showStats ? "Cacher" : "Voir"} les stats
+            </button>
+            <button 
+              onClick={() => openModal()}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 24px",
+                background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                boxShadow: "0 4px 15px rgba(79, 70, 229, 0.3)"
+              }}
+            >
+              <span>➕</span>
+              Nouvel utilisateur
+            </button>
           </div>
         </div>
 
-        {/* TABLEAU DES UTILISATEURS */}
-        <div className="card shadow-sm border-0">
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th className="px-4">ID</th>
-                    <th>Utilisateur</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Rôle</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="text-center py-5">
-                        <i className="bi bi-inbox fs-1 text-muted"></i>
-                        <p className="text-muted mt-2">Aucun utilisateur trouvé</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td className="px-4">{user.id}</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <div className="avatar-circle me-3">
-                              {user.prenom?.[0]}{user.nom?.[0]}
-                            </div>
-                            <div>
-                              <div className="fw-semibold">{user.prenom} {user.nom}</div>
-                              <small className="text-muted">{user.localisation || "Localisation non définie"}</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{user.email}</td>
-                        <td>{user.telephone || "-"}</td>
-                        <td>
-                          <span className={`badge ${getRoleBadgeClass(user.role)} px-3 py-2 rounded-pill`}>
-                            {getRoleLabel(user.role)}
-                          </span>
-                        </td>
-                        <td className="text-center">
-                          <button
-                            className="btn btn-sm btn-outline-warning me-2 rounded-circle"
-                            onClick={() => openEdit(user)}
-                            title="Modifier"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger rounded-circle"
-                            onClick={() => deleteUser(user.id)}
-                            title="Supprimer"
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* MODAL AJOUT/MODIFICATION */}
-        {showModal && (
-          <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}>
-            <div className="modal-dialog modal-dialog-centered modal-lg">
-              <div className="modal-content shadow-lg border-0 rounded-4">
-                <div className="modal-header bg-light rounded-top-4">
-                  <h5 className="modal-title fw-bold">
-                    <i className={`bi ${editingUser ? "bi-pencil-square" : "bi-person-plus"} me-2 text-primary`}></i>
-                    {editingUser ? "Modifier l'utilisateur" : "Ajouter un utilisateur"}
-                  </h5>
-                  <button type="button" className="btn-close" onClick={closeModal}></button>
+        {/* Statistiques */}
+        {showStats && (
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            border: "1px solid #f1f5f9",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gap: "16px"
+          }}>
+            {[
+              { label: "Total", value: stats.total, icon: "👥", color: "#eff6ff", textColor: "#3b82f6" },
+              { label: "Administrateurs", value: stats.admins, icon: "👑", color: "#fef2f2", textColor: "#dc2626" },
+              { label: "Prestataires", value: stats.prestataires, icon: "🔧", color: "#dcfce7", textColor: "#16a34a" },
+              { label: "Demandeurs", value: stats.demandeurs, icon: "👤", color: "#fef3c7", textColor: "#d97706" },
+              { label: "Actifs", value: stats.actifs, icon: "🟢", color: "#dcfce7", textColor: "#16a34a" },
+              { label: "Nouveaux (7j)", value: stats.nouveaux, icon: "🆕", color: "#e0f2fe", textColor: "#3b82f6" }
+            ].map((stat, index) => (
+              <div key={index} style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px 20px",
+                background: stat.color,
+                borderRadius: "12px"
+              }}>
+                <div style={{
+                  fontSize: "24px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "white",
+                  borderRadius: "10px"
+                }}>{stat.icon}</div>
+                <div>
+                  <h3 style={{ fontSize: "22px", fontWeight: "700", margin: 0, color: stat.textColor }}>
+                    {stat.value}
+                  </h3>
+                  <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: "#64748b" }}>{stat.label}</p>
                 </div>
-                <div className="modal-body p-4">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Nom *</label>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Filtres et recherche */}
+        <div style={{
+          background: "white",
+          borderRadius: "16px",
+          padding: "16px",
+          marginBottom: "24px",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+          border: "1px solid #f1f5f9",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "12px",
+          alignItems: "center"
+        }}>
+          <div style={{
+            flex: 1,
+            minWidth: "200px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#f8fafc",
+            padding: "0 16px",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0"
+          }}>
+            <span>🔍</span>
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email, localisation..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                flex: 1,
+                padding: "10px 0",
+                border: "none",
+                background: "none",
+                outline: "none",
+                fontSize: "14px"
+              }}
+            />
+            {search && (
+              <button 
+                onClick={() => setSearch("")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#a0aec0",
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            style={{
+              padding: "10px 16px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "12px",
+              fontSize: "13px",
+              fontWeight: "500",
+              cursor: "pointer",
+              minWidth: "140px"
+            }}
+          >
+            <option value="tous">👥 Tous rôles</option>
+            <option value="admin">👑 Administrateurs</option>
+            <option value="prestataire">🔧 Prestataires</option>
+            <option value="demandeur">👤 Demandeurs</option>
+          </select>
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{
+              padding: "10px 16px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "12px",
+              fontSize: "13px",
+              fontWeight: "500",
+              cursor: "pointer",
+              minWidth: "140px"
+            }}
+          >
+            <option value="tous">📊 Tous statuts</option>
+            <option value="actif">🟢 Actifs</option>
+            <option value="inactif">🔴 Inactifs</option>
+            <option value="suspendu">🟡 Suspendus</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            style={{
+              padding: "10px 16px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "12px",
+              fontSize: "13px",
+              fontWeight: "500",
+              cursor: "pointer",
+              minWidth: "140px"
+            }}
+          >
+            <option value="date">📅 Plus récents</option>
+            <option value="name">🔤 Par nom</option>
+            <option value="role">👥 Par rôle</option>
+          </select>
+        </div>
+
+        {/* Actions en masse */}
+        {selectedUsers.length > 0 && (
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            padding: "16px 20px",
+            marginBottom: "16px",
+            border: "2px solid #4F46E5",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "12px"
+          }}>
+            <span style={{ fontWeight: "600", color: "#1a202c" }}>
+              {selectedUsers.length} utilisateur(s) sélectionné(s)
+            </span>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <button
+                onClick={() => handleBulkStatusUpdate("actif")}
+                style={{
+                  padding: "6px 14px",
+                  background: "#dcfce7",
+                  color: "#16a34a",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                🟢 Activer
+              </button>
+              <button
+                onClick={() => handleBulkStatusUpdate("inactif")}
+                style={{
+                  padding: "6px 14px",
+                  background: "#fee2e2",
+                  color: "#ef4444",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                🔴 Désactiver
+              </button>
+              <button
+                onClick={() => handleBulkStatusUpdate("suspendu")}
+                style={{
+                  padding: "6px 14px",
+                  background: "#fef3c7",
+                  color: "#d97706",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                🟡 Suspendre
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                style={{
+                  padding: "6px 14px",
+                  background: "#fee2e2",
+                  color: "#ef4444",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                🗑️ Supprimer
+              </button>
+              <button
+                onClick={() => setSelectedUsers([])}
+                style={{
+                  padding: "6px 14px",
+                  background: "#f1f5f9",
+                  color: "#64748b",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                ✕ Annuler
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Résultats */}
+        <div style={{ fontSize: "14px", color: "#718096", marginBottom: "16px" }}>
+          <span>
+            {filteredUsers.length} utilisateur{filteredUsers.length > 1 ? "s" : ""} trouvé{filteredUsers.length > 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {/* Tableau des utilisateurs */}
+        {filteredUsers.length === 0 ? (
+          <div style={{
+            textAlign: "center",
+            padding: "48px 20px",
+            background: "white",
+            borderRadius: "16px",
+            border: "1px solid #f1f5f9"
+          }}>
+            <span style={{ fontSize: "48px", opacity: "0.5" }}>📭</span>
+            <p style={{ fontSize: "16px", fontWeight: "500", margin: "8px 0 4px 0", color: "#475569" }}>
+              Aucun utilisateur trouvé
+            </p>
+            <span style={{ fontSize: "14px", color: "#94a3b8" }}>
+              {search ? "Essayez avec d'autres critères" : "Ajoutez votre premier utilisateur"}
+            </span>
+          </div>
+        ) : (
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            overflow: "hidden",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            border: "1px solid #f1f5f9",
+            overflowX: "auto"
+          }}>
+            <table style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "900px"
+            }}>
+              <thead>
+                <tr style={{
+                  background: "#f8fafc",
+                  borderBottom: "2px solid #e2e8f0"
+                }}>
+                  <th style={{ padding: "12px 16px", width: "40px" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                      onChange={handleToggleSelectAll}
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        cursor: "pointer",
+                        accentColor: "#4F46E5"
+                      }}
+                    />
+                  </th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Utilisateur</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Email</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Localisation</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Rôle</th>
+                  <th style={{ padding: "16px 20px", textAlign: "left", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Statut</th>
+                  <th style={{ padding: "16px 20px", textAlign: "center", fontWeight: "600", color: "#475569", fontSize: "12px", textTransform: "uppercase" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} style={{
+                    borderBottom: "1px solid #f1f5f9",
+                    transition: "background 0.2s ease",
+                    background: selectedUsers.includes(user.id) ? "#eef2ff" : "white"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!selectedUsers.includes(user.id)) {
+                      e.currentTarget.style.background = "#f8fafc";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedUsers.includes(user.id)) {
+                      e.currentTarget.style.background = "white";
+                    }
+                  }}
+                  >
+                    <td style={{ padding: "12px 16px", textAlign: "center" }}>
                       <input
-                        className="form-control"
-                        placeholder="Nom"
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleToggleSelect(user.id)}
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          cursor: "pointer",
+                          accentColor: "#4F46E5"
+                        }}
+                      />
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{
+                          width: "44px",
+                          height: "44px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                          color: "white",
+                          borderRadius: "12px",
+                          fontSize: "22px",
+                          fontWeight: "600",
+                          flexShrink: 0
+                        }}>
+                          {user.avatar || "👤"}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: "600", color: "#1a202c" }}>
+                            {user.prenom} {user.nom}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+                            📱 {user.telephone || "Non renseigné"}
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#cbd5e1" }}>
+                            🕐 {formatTimeAgo(user.created_at)}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ fontSize: "14px", color: "#1a202c" }}>
+                        {user.email}
+                      </div>
+                      {user.bio && (
+                        <div style={{ fontSize: "12px", color: "#94a3b8", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {user.bio}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px", color: "#475569" }}>
+                        <span>📍</span> {user.localisation || "Non définie"}
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <span style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "4px 12px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        background: user.role === "admin" ? "#fef2f2" :
+                                  user.role === "prestataire" ? "#dcfce7" : "#fef3c7",
+                        color: user.role === "admin" ? "#dc2626" :
+                               user.role === "prestataire" ? "#16a34a" : "#d97706"
+                      }}>
+                        <span>{getRoleIcon(user.role)}</span>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 20px" }}>
+                      <span style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "4px 12px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        background: user.status === "actif" ? "#dcfce7" :
+                                  user.status === "inactif" ? "#fee2e2" : "#fef3c7",
+                        color: user.status === "actif" ? "#16a34a" :
+                               user.status === "inactif" ? "#ef4444" : "#d97706"
+                      }}>
+                        <span>{getStatusIcon(user.status)}</span>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 20px", textAlign: "center" }}>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                        <button
+                          onClick={() => openModal(user)}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            border: "none",
+                            background: "#eef2ff",
+                            color: "#4F46E5",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "14px",
+                            transition: "all 0.3s ease"
+                          }}
+                          title="Modifier"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            border: "none",
+                            background: "#fee2e2",
+                            color: "#ef4444",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "14px",
+                            transition: "all 0.3s ease"
+                          }}
+                          title="Supprimer"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal Ajout/Modification */}
+        {showModal && (
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999
+          }} onClick={closeModal}>
+            <div style={{
+              background: "white",
+              borderRadius: "20px",
+              width: "90%",
+              maxWidth: "580px",
+              maxHeight: "90vh",
+              overflowY: "auto"
+            }} onClick={(e) => e.stopPropagation()}>
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "24px 32px",
+                borderBottom: "1px solid #f1f5f9"
+              }}>
+                <h2 style={{
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  color: "#1a202c",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px"
+                }}>
+                  <span style={{ fontSize: "24px" }}>
+                    {editingUser ? "✏️" : "➕"}
+                  </span>
+                  {editingUser ? "Modifier l'utilisateur" : "Ajouter un utilisateur"}
+                </h2>
+                <button 
+                  onClick={closeModal}
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    border: "none",
+                    background: "#f1f5f9",
+                    borderRadius: "50%",
+                    fontSize: "18px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#64748b"
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ padding: "32px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                        Nom <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
+                      <input
+                        type="text"
                         value={form.nom}
                         onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                        placeholder="Nom"
+                        style={{
+                          width: "100%",
+                          padding: "10px 14px",
+                          border: `2px solid ${formErrors.nom ? "#ef4444" : "#e2e8f0"}`,
+                          borderRadius: "10px",
+                          fontSize: "14px",
+                          transition: "all 0.3s ease",
+                          outline: "none",
+                          boxSizing: "border-box"
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                        onBlur={(e) => e.target.style.borderColor = formErrors.nom ? "#ef4444" : "#e2e8f0"}
                       />
+                      {formErrors.nom && <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px", display: "block" }}>{formErrors.nom}</span>}
                     </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Prénom *</label>
+
+                    <div>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                        Prénom <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
                       <input
-                        className="form-control"
-                        placeholder="Prénom"
+                        type="text"
                         value={form.prenom}
                         onChange={(e) => setForm({ ...form, prenom: e.target.value })}
+                        placeholder="Prénom"
+                        style={{
+                          width: "100%",
+                          padding: "10px 14px",
+                          border: `2px solid ${formErrors.prenom ? "#ef4444" : "#e2e8f0"}`,
+                          borderRadius: "10px",
+                          fontSize: "14px",
+                          transition: "all 0.3s ease",
+                          outline: "none",
+                          boxSizing: "border-box"
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                        onBlur={(e) => e.target.style.borderColor = formErrors.prenom ? "#ef4444" : "#e2e8f0"}
                       />
+                      {formErrors.prenom && <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px", display: "block" }}>{formErrors.prenom}</span>}
                     </div>
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">Email *</label>
-                      <input
-                        className="form-control"
-                        type="email"
-                        placeholder="Email"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Téléphone</label>
-                      <input
-                        className="form-control"
-                        placeholder="Téléphone"
-                        value={form.telephone}
-                        onChange={(e) => setForm({ ...form, telephone: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Localisation</label>
-                      <input
-                        className="form-control"
-                        placeholder="Dakar, Sénégal"
-                        value={form.localisation}
-                        onChange={(e) => setForm({ ...form, localisation: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">Rôle *</label>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                      Email <span style={{ color: "#ef4444" }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="exemple@email.com"
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        border: `2px solid ${formErrors.email ? "#ef4444" : "#e2e8f0"}`,
+                        borderRadius: "10px",
+                        fontSize: "14px",
+                        transition: "all 0.3s ease",
+                        outline: "none",
+                        boxSizing: "border-box"
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                      onBlur={(e) => e.target.style.borderColor = formErrors.email ? "#ef4444" : "#e2e8f0"}
+                    />
+                    {formErrors.email && <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px", display: "block" }}>{formErrors.email}</span>}
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                      Téléphone
+                    </label>
+                    <input
+                      type="tel"
+                      value={form.telephone}
+                      onChange={(e) => setForm({ ...form, telephone: e.target.value })}
+                      placeholder="+221 77 123 45 67"
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        border: `2px solid ${formErrors.telephone ? "#ef4444" : "#e2e8f0"}`,
+                        borderRadius: "10px",
+                        fontSize: "14px",
+                        transition: "all 0.3s ease",
+                        outline: "none",
+                        boxSizing: "border-box"
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                      onBlur={(e) => e.target.style.borderColor = formErrors.telephone ? "#ef4444" : "#e2e8f0"}
+                    />
+                    {formErrors.telephone && <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px", display: "block" }}>{formErrors.telephone}</span>}
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                      Localisation
+                    </label>
+                    <input
+                      type="text"
+                      value={form.localisation}
+                      onChange={(e) => setForm({ ...form, localisation: e.target.value })}
+                      placeholder="Dakar, Sénégal"
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        border: "2px solid #e2e8f0",
+                        borderRadius: "10px",
+                        fontSize: "14px",
+                        transition: "all 0.3s ease",
+                        outline: "none",
+                        boxSizing: "border-box"
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                      onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                      Bio
+                    </label>
+                    <textarea
+                      value={form.bio}
+                      onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                      placeholder="Brève description..."
+                      rows={2}
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        border: "2px solid #e2e8f0",
+                        borderRadius: "10px",
+                        fontSize: "14px",
+                        fontFamily: "inherit",
+                        resize: "vertical",
+                        transition: "all 0.3s ease",
+                        outline: "none",
+                        boxSizing: "border-box"
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#4F46E5"}
+                      onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                        Rôle <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
                       <select
-                        className="form-select"
                         value={form.role}
-                        onChange={(e) => setForm({ ...form, role: e.target.value })}
+                        onChange={(e) => setForm({ ...form, role: e.target.value as any })}
+                        style={{
+                          width: "100%",
+                          padding: "10px 14px",
+                          border: "2px solid #e2e8f0",
+                          borderRadius: "10px",
+                          fontSize: "14px",
+                          background: "white",
+                          cursor: "pointer",
+                          outline: "none",
+                          boxSizing: "border-box"
+                        }}
                       >
                         <option value="demandeur">👤 Demandeur</option>
                         <option value="prestataire">🔧 Prestataire</option>
                         <option value="admin">👑 Administrateur</option>
                       </select>
                     </div>
-                    {!editingUser && (
-                      <>
-                        <div className="col-12">
-                          <label className="form-label fw-semibold">Mot de passe *</label>
-                          <div className="input-group">
-                            <input
-                              className="form-control"
-                              type="text"
-                              value={form.password}
-                              readOnly
-                              placeholder="Mot de passe généré"
-                            />
-                            <button className="btn btn-outline-primary" type="button" onClick={generatePassword}>
-                              <i className="bi bi-shuffle"></i> Générer
-                            </button>
-                          </div>
-                          <small className="text-muted">Cliquez sur générer pour créer un mot de passe sécurisé</small>
-                        </div>
-                        <div className="col-12">
-                          <label className="form-label fw-semibold">Confirmer le mot de passe *</label>
-                          <input
-                            className="form-control"
-                            type="password"
-                            placeholder="Confirmation"
-                            value={form.password_confirmation}
-                            onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
-                          />
-                        </div>
-                      </>
-                    )}
+
+                    <div>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+                        Statut <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
+                      <select
+                        value={form.status}
+                        onChange={(e) => setForm({ ...form, status: e.target.value as any })}
+                        style={{
+                          width: "100%",
+                          padding: "10px 14px",
+                          border: "2px solid #e2e8f0",
+                          borderRadius: "10px",
+                          fontSize: "14px",
+                          background: "white",
+                          cursor: "pointer",
+                          outline: "none",
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        <option value="actif">🟢 Actif</option>
+                        <option value="inactif">🔴 Inactif</option>
+                        <option value="suspendu">🟡 Suspendu</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-                <div className="modal-footer bg-light rounded-bottom-4">
-                  <button className="btn btn-secondary px-4" onClick={closeModal}>
-                    Annuler
-                  </button>
-                  <button className="btn btn-primary px-4" onClick={handleSubmit} disabled={submitting}>
-                    {submitting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                        Enregistrement...
-                      </>
-                    ) : (
-                      <>
-                        <i className="bi bi-save me-2"></i>
-                        Enregistrer
-                      </>
-                    )}
-                  </button>
-                </div>
+              </div>
+
+              <div style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+                padding: "20px 32px",
+                borderTop: "1px solid #f1f5f9",
+                background: "#fafbfc",
+                borderRadius: "0 0 20px 20px"
+              }}>
+                <button 
+                  onClick={closeModal}
+                  style={{
+                    padding: "10px 24px",
+                    background: "#f1f5f9",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    color: "#475569",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={handleSave}
+                  style={{
+                    padding: "10px 24px",
+                    background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <span>💾</span>
+                  {editingUser ? "Mettre à jour" : "Enregistrer"}
+                </button>
               </div>
             </div>
           </div>
@@ -523,36 +1513,15 @@ const Utilisateurs = () => {
       </div>
 
       <style>{`
-        .avatar-circle {
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, #0D6EFD, #4DA3FF);
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          font-size: 1rem;
-          text-transform: uppercase;
-        }
-        .display-6 {
-          font-size: 2rem;
-          font-weight: 600;
-        }
-        .modal.show {
-          display: block;
-        }
-        .rounded-4 {
-          border-radius: 1rem;
-        }
-        .rounded-top-4 {
-          border-top-left-radius: 1rem;
-          border-top-right-radius: 1rem;
-        }
-        .rounded-bottom-4 {
-          border-bottom-left-radius: 1rem;
-          border-bottom-right-radius: 1rem;
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
       `}</style>
     </DashboardLayout>

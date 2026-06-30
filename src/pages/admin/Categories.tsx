@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*import {
   useEffect,
   useState,
@@ -17,9 +18,52 @@ import {
 
 import { toast } from "react-toastify";
 
+=======
+// src/pages/admin/Categories.tsx
+import { useEffect, useState } from "react";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import AdminSidebar from "../../components/dashboard/AdminSidebar";
+
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  service_count: number;
+  created_at: string;
+  updated_at?: string;
+  status: "actif" | "inactif";
+}
+
+interface CategoryStats {
+  total: number;
+  actifs: number;
+  inactifs: number;
+  total_services: number;
+}
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
 
 const Categories = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showStats, setShowStats] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("tous");
+  const [sortBy, setSortBy] = useState<"name" | "services" | "date">("name");
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    icon: "📂",
+    color: "#4F46E5",
+    status: "actif" as "actif" | "inactif"
+  });
 
+<<<<<<< HEAD
 
 const [categories,setCategories] =
 useState<any[]>([]);
@@ -447,6 +491,20 @@ const Categories = () => {
     "#14B8A6", "#6366F1", "#A855F7", "#22D3EE", "#34D399"
   ];
 
+=======
+  const icons = [
+    "📂", "🛠️", "📚", "🎨", "💻", "🏥", "🎵", "📷", 
+    "✏️", "🔧", "🧹", "🍳", "🧘", "🏋️", "🎭", "🎪",
+    "🚗", "✈️", "🏠", "🌿", "💡", "📊", "🎯", "⚡"
+  ];
+
+  const colors = [
+    "#4F46E5", "#7C3AED", "#EC4899", "#EF4444", "#F59E0B",
+    "#10B981", "#3B82F6", "#8B5CF6", "#F472B6", "#F97316",
+    "#14B8A6", "#6366F1", "#A855F7", "#22D3EE", "#34D399"
+  ];
+
+>>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
   // Initialisation des données
   useEffect(() => {
     try {
