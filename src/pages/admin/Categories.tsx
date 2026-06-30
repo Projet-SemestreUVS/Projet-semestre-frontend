@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*import {
   useEffect,
   useState,
@@ -63,7 +62,6 @@ const Categories = () => {
     status: "actif" as "actif" | "inactif"
   });
 
-<<<<<<< HEAD
 
 const [categories,setCategories] =
 useState<any[]>([]);
@@ -491,20 +489,6 @@ const Categories = () => {
     "#14B8A6", "#6366F1", "#A855F7", "#22D3EE", "#34D399"
   ];
 
-=======
-  const icons = [
-    "📂", "🛠️", "📚", "🎨", "💻", "🏥", "🎵", "📷", 
-    "✏️", "🔧", "🧹", "🍳", "🧘", "🏋️", "🎭", "🎪",
-    "🚗", "✈️", "🏠", "🌿", "💡", "📊", "🎯", "⚡"
-  ];
-
-  const colors = [
-    "#4F46E5", "#7C3AED", "#EC4899", "#EF4444", "#F59E0B",
-    "#10B981", "#3B82F6", "#8B5CF6", "#F472B6", "#F97316",
-    "#14B8A6", "#6366F1", "#A855F7", "#22D3EE", "#34D399"
-  ];
-
->>>>>>> 75bcc7c9458ed707b0958676eaf2de7d2950446b
   // Initialisation des données
   useEffect(() => {
     try {
