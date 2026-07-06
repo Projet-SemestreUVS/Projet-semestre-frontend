@@ -14,6 +14,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [acceptTerms, setAcceptTerms] = useState(false);
   
   const [form, setForm] = useState({
     nom: "",
@@ -59,6 +60,9 @@ const Register = () => {
     if (form.password !== form.password_confirmation) {
       newErrors.password_confirmation = "Les mots de passe ne correspondent pas";
     }
+    if (!acceptTerms) {
+      newErrors.terms = "Vous devez accepter les conditions d'utilisation";
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,10 +99,10 @@ const Register = () => {
   };
 
   const benefits = [
-    { icon: "✓", text: "Accès à tous les services" },
-    { icon: "✓", text: "Support client 24/7" },
-    { icon: "✓", text: "Paiement sécurisé" },
-    { icon: "✓", text: "Avis vérifiés" },
+    { icon: "bi-check-circle-fill", text: "Accès à tous les services" },
+    { icon: "bi-check-circle-fill", text: "Support client 24/7" },
+    { icon: "bi-check-circle-fill", text: "Paiement sécurisé" },
+    { icon: "bi-check-circle-fill", text: "Avis vérifiés" },
   ];
 
   return (
@@ -115,6 +119,9 @@ const Register = () => {
             <div className="brand-content">
               <div className="brand-logo">
                 <img src={logo} alt="KAY JOB" />
+                <div className="brand-badge">
+                  <i className="bi bi-star-fill"></i>
+                </div>
               </div>
               <h1 className="brand-title">
                 Créez votre compte
@@ -133,7 +140,7 @@ const Register = () => {
                     transition={{ delay: index * 0.1 }}
                     className="feature-item"
                   >
-                    <span className="feature-icon">{benefit.icon}</span>
+                    <i className={`bi ${benefit.icon}`}></i>
                     <span>{benefit.text}</span>
                   </motion.div>
                 ))}
@@ -155,6 +162,12 @@ const Register = () => {
                   <span className="stat-label">Satisfaction</span>
                 </div>
               </div>
+
+              {/* Lien retour à l'accueil */}
+              <Link to="/" className="back-home-link">
+                <i className="bi bi-arrow-left"></i>
+                Retour à l'accueil
+              </Link>
             </div>
           </motion.div>
 
@@ -175,7 +188,7 @@ const Register = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="nom">
-                      Nom <span className="required">*</span>
+                      <i className="bi bi-person"></i> Nom <span className="required">*</span>
                     </label>
                     <input
                       type="text"
@@ -191,7 +204,7 @@ const Register = () => {
 
                   <div className="form-group">
                     <label htmlFor="prenom">
-                      Prénom <span className="required">*</span>
+                      <i className="bi bi-person"></i> Prénom <span className="required">*</span>
                     </label>
                     <input
                       type="text"
@@ -208,7 +221,7 @@ const Register = () => {
 
                 <div className="form-group">
                   <label htmlFor="email">
-                    Email <span className="required">*</span>
+                    <i className="bi bi-envelope"></i> Email <span className="required">*</span>
                   </label>
                   <input
                     type="email"
@@ -224,7 +237,7 @@ const Register = () => {
 
                 <div className="form-group">
                   <label htmlFor="telephone">
-                    Téléphone <span className="required">*</span>
+                    <i className="bi bi-telephone"></i> Téléphone <span className="required">*</span>
                   </label>
                   <input
                     type="tel"
@@ -239,7 +252,9 @@ const Register = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="localisation">Localisation</label>
+                  <label htmlFor="localisation">
+                    <i className="bi bi-geo-alt"></i> Localisation
+                  </label>
                   <input
                     type="text"
                     id="localisation"
@@ -250,10 +265,10 @@ const Register = () => {
                   />
                 </div>
 
-                {/* ROLE SELECTION - TOUS LES RÔLES (Admin inclus) */}
+                {/* ROLE SELECTION */}
                 <div className="form-group">
                   <label htmlFor="role">
-                    Je suis <span className="required">*</span>
+                    <i className="bi bi-person-badge"></i> Je suis <span className="required">*</span>
                   </label>
                   <div className="role-selector">
                     <label className={`role-option ${form.role === "demandeur" ? "active" : ""}`}>
@@ -264,7 +279,9 @@ const Register = () => {
                         checked={form.role === "demandeur"}
                         onChange={handleChange}
                       />
-                      <span className="role-icon">🔍</span>
+                      <div className="role-icon">
+                        <i className="bi bi-search"></i>
+                      </div>
                       <div className="role-info">
                         <strong>Demandeur</strong>
                         <small>Je cherche un service</small>
@@ -279,14 +296,15 @@ const Register = () => {
                         checked={form.role === "prestataire"}
                         onChange={handleChange}
                       />
-                      <span className="role-icon">🔧</span>
+                      <div className="role-icon">
+                        <i className="bi bi-tools"></i>
+                      </div>
                       <div className="role-info">
                         <strong>Prestataire</strong>
                         <small>Je propose mes services</small>
                       </div>
                     </label>
 
-                    {/* RÔLE ADMIN - DISPONIBLE EN DÉVELOPPEMENT */}
                     <label className={`role-option ${form.role === "admin" ? "active" : ""}`}>
                       <input
                         type="radio"
@@ -295,7 +313,9 @@ const Register = () => {
                         checked={form.role === "admin"}
                         onChange={handleChange}
                       />
-                      <span className="role-icon">👑</span>
+                      <div className="role-icon">
+                        <i className="bi bi-shield"></i>
+                      </div>
                       <div className="role-info">
                         <strong>Administrateur</strong>
                         <small>Gérer la plateforme</small>
@@ -307,7 +327,7 @@ const Register = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="password">
-                      Mot de passe <span className="required">*</span>
+                      <i className="bi bi-lock"></i> Mot de passe <span className="required">*</span>
                     </label>
                     <div className="password-input-wrapper">
                       <input
@@ -324,7 +344,11 @@ const Register = () => {
                         className="password-toggle"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? "👁️" : "👁️‍🗨️"}
+                        {showPassword ? (
+                          <i className="bi bi-eye"></i>
+                        ) : (
+                          <i className="bi bi-eye-slash"></i>
+                        )}
                       </button>
                     </div>
                     {errors.password && <span className="error-message">{errors.password}</span>}
@@ -332,7 +356,7 @@ const Register = () => {
 
                   <div className="form-group">
                     <label htmlFor="password_confirmation">
-                      Confirmation <span className="required">*</span>
+                      <i className="bi bi-lock"></i> Confirmation <span className="required">*</span>
                     </label>
                     <div className="password-input-wrapper">
                       <input
@@ -349,11 +373,34 @@ const Register = () => {
                         className="password-toggle"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
-                        {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                        {showConfirmPassword ? (
+                          <i className="bi bi-eye"></i>
+                        ) : (
+                          <i className="bi bi-eye-slash"></i>
+                        )}
                       </button>
                     </div>
                     {errors.password_confirmation && <span className="error-message">{errors.password_confirmation}</span>}
                   </div>
+                </div>
+
+                {/* Terms & Conditions */}
+                <div className="terms-group">
+                  <label className="terms-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                    />
+                    <span className="terms-custom"></span>
+                    <span className="terms-text">
+                      J'accepte les{" "}
+                      <Link to="/terms">Conditions d'utilisation</Link> et la{" "}
+                      <Link to="/privacy">Politique de confidentialité</Link>
+                      <span className="required">*</span>
+                    </span>
+                  </label>
+                  {errors.terms && <span className="error-message">{errors.terms}</span>}
                 </div>
 
                 <button 
@@ -361,13 +408,23 @@ const Register = () => {
                   className="submit-btn"
                   disabled={loading}
                 >
-                  {loading ? "Inscription en cours..." : "Créer mon compte"}
+                  {loading ? (
+                    <>
+                      <span className="spinner-small"></span>
+                      Inscription en cours...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-person-plus"></i>
+                      Créer mon compte
+                    </>
+                  )}
                 </button>
 
                 <div className="login-link">
                   Déjà un compte ?{" "}
                   <Link to="/login">
-                    Connectez-vous →
+                    Connectez-vous <i className="bi bi-arrow-right"></i>
                   </Link>
                 </div>
               </form>

@@ -1,3 +1,4 @@
+// src/pages/public/ServiceDetail.tsx
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -36,7 +37,7 @@ interface Service {
 // Configuration des images par catégorie
 const categoryImages = {
   Plomberie: {
-    main: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop",
+    main: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&h=400&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop",
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=300&fit=crop",
@@ -68,7 +69,7 @@ const categoryImages = {
     ]
   },
   Beauté: {
-    main: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400&h=300&fit=crop",
+    main: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&h=400&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400&h=300&fit=crop",
       "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop",
@@ -108,7 +109,7 @@ const categoryImages = {
     ]
   },
   Services: {
-    main: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400&h=300&fit=crop",
+    main: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&h=400&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400&h=300&fit=crop",
       "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400&h=300&fit=crop",
@@ -117,7 +118,7 @@ const categoryImages = {
   }
 };
 
-// Avatars des prestataires par catégorie
+// Avatars des prestataires
 const providerAvatars = {
   Plomberie: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop",
   Électricité: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop",
@@ -131,7 +132,7 @@ const providerAvatars = {
   Services: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop"
 };
 
-// Données complètes des services avec images API
+// Données complètes des services
 const servicesData: Service[] = [
   {
     id: 1,
@@ -141,8 +142,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "1h à 2h",
     description: "Service rapide pour fuites, débouchage, changement de robinet et petites réparations sanitaires.",
-    longDescription: "Notre service de plomberie express intervient rapidement pour résoudre tous vos problèmes de plomberie. Avec une équipe de techniciens certifiés et expérimentés, nous garantissons un travail de qualité dans les meilleurs délais. Que ce soit pour une urgence (fuite, canalisation bouchée) ou pour des travaux programmés (installation sanitaire, remplacement de chauffe-eau), nous sommes à votre disposition.",
-    icon: "🔧",
+    longDescription: "Notre service de plomberie express intervient rapidement pour résoudre tous vos problèmes de plomberie. Avec une équipe de techniciens certifiés et expérimentés, nous garantissons un travail de qualité dans les meilleurs délais.",
+    icon: "bi-wrench",
     rating: 4.8,
     reviews: 234,
     deliveryTime: "30 min",
@@ -174,8 +175,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "1h à 3h",
     description: "Installation, maintenance et dépannage électrique pour maisons et bureaux.",
-    longDescription: "Service électrique professionnel pour tous vos besoins. Nos électriciens qualifiés interviennent pour l'installation, la maintenance et le dépannage de vos installations électriques. Nous respectons les normes de sécurité les plus strictes et utilisons du matériel certifié.",
-    icon: "⚡",
+    longDescription: "Service électrique professionnel pour tous vos besoins. Nos électriciens qualifiés interviennent pour l'installation, la maintenance et le dépannage de vos installations électriques.",
+    icon: "bi-lightning-fill",
     rating: 4.9,
     reviews: 189,
     deliveryTime: "45 min",
@@ -207,8 +208,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "2j à 5j",
     description: "Création de sites modernes, rapides et optimisés pour les conversions.",
-    longDescription: "Nous créons des sites web professionnels, modernes et parfaitement adaptés à votre activité. Notre équipe de développeurs expérimentés utilise les dernières technologies pour vous offrir un site rapide, sécurisé et optimisé pour le référencement.",
-    icon: "💻",
+    longDescription: "Nous créons des sites web professionnels, modernes et parfaitement adaptés à votre activité. Notre équipe de développeurs expérimentés utilise les dernières technologies.",
+    icon: "bi-code-square",
     rating: 4.7,
     reviews: 567,
     deliveryTime: "5 jours",
@@ -240,8 +241,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "30 min à 1h",
     description: "Livraison, déménagement et déplacement rapide selon vos besoins.",
-    longDescription: "Service de transport fiable et rapide pour tous vos déplacements. Nous proposons des solutions adaptées à vos besoins : livraison de colis, transport de personnes, déménagement, etc. Nos chauffeurs sont professionnels et nos véhicules sont assurés.",
-    icon: "🚚",
+    longDescription: "Service de transport fiable et rapide pour tous vos déplacements. Nous proposons des solutions adaptées à vos besoins : livraison de colis, transport de personnes, déménagement.",
+    icon: "bi-truck",
     rating: 4.6,
     reviews: 432,
     deliveryTime: "20 min",
@@ -255,7 +256,7 @@ const servicesData: Service[] = [
     ],
     images: categoryImages.Transport.gallery,
     provider: {
-      name: " Ndeye Awa Mbodj Mobility Sénégal",
+      name: "Ndeye Awa Mbodj Mobility Sénégal",
       avatar: providerAvatars.Transport,
       verified: true,
       phone: "+221 78 456 78 90",
@@ -273,8 +274,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "1h à 2h",
     description: "Coupe, brushing et soins de beauté réalisés par des professionnels.",
-    longDescription: "Salon de coiffure haut de gamme offrant des prestations de qualité. Nos coiffeurs expérimentés vous conseillent et réalisent la coiffure qui vous correspond. Nous utilisons des produits naturels et respectueux de vos cheveux.",
-    icon: "✂️",
+    longDescription: "Salon de coiffure haut de gamme offrant des prestations de qualité. Nos coiffeurs expérimentés vous conseillent et réalisent la coiffure qui vous correspond.",
+    icon: "bi-scissors",
     rating: 4.9,
     reviews: 321,
     deliveryTime: "1 heure",
@@ -306,8 +307,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "2h à 4h",
     description: "Nettoyage complet et entretien régulier de votre espace.",
-    longDescription: "Service de nettoyage professionnel pour vos locaux. Nous utilisons des produits écologiques et des équipements modernes pour un résultat impeccable. Que ce soit pour un nettoyage ponctuel ou régulier, nous nous adaptons à vos besoins.",
-    icon: "🧹",
+    longDescription: "Service de nettoyage professionnel pour vos locaux. Nous utilisons des produits écologiques et des équipements modernes pour un résultat impeccable.",
+    icon: "bi-house-door",
     rating: 4.8,
     reviews: 298,
     deliveryTime: "2 heures",
@@ -339,8 +340,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "1j à 2j",
     description: "Entretien de jardin, tonte, taille et aménagement paysager.",
-    longDescription: "Service complet d'entretien et d'aménagement de jardins. Nos jardiniers professionnels prennent soin de votre espace vert toute l'année. De la simple tonte à la création d'un jardin paysager, nous réalisons tous vos projets.",
-    icon: "🌿",
+    longDescription: "Service complet d'entretien et d'aménagement de jardins. Nos jardiniers professionnels prennent soin de votre espace vert toute l'année.",
+    icon: "bi-tree",
     rating: 4.7,
     reviews: 156,
     deliveryTime: "1 jour",
@@ -372,8 +373,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "2h à 4h",
     description: "Séances photo professionnelles, événements et portraits.",
-    longDescription: "Photographe professionnel pour tous vos événements. Nous capturons vos moments précieux avec créativité et professionnalisme. Mariages, anniversaires, portraits professionnels, notre équipe s'adapte à vos besoins.",
-    icon: "📷",
+    longDescription: "Photographe professionnel pour tous vos événements. Nous capturons vos moments précieux avec créativité et professionnalisme.",
+    icon: "bi-camera",
     rating: 4.9,
     reviews: 203,
     deliveryTime: "3 jours",
@@ -405,8 +406,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA/heure",
     duration: "1h à 2h",
     description: "Soutien scolaire et cours particuliers toutes matières.",
-    longDescription: "Professeur particulier pour un accompagnement personnalisé. Nous proposons des cours dans toutes les matières pour tous les niveaux. Nos professeurs sont qualifiés et expérimentés.",
-    icon: "📚",
+    longDescription: "Professeur particulier pour un accompagnement personnalisé. Nous proposons des cours dans toutes les matières pour tous les niveaux.",
+    icon: "bi-book",
     rating: 4.8,
     reviews: 456,
     deliveryTime: "24h",
@@ -420,7 +421,7 @@ const servicesData: Service[] = [
     ],
     images: categoryImages.Éducation.gallery,
     provider: {
-      name: " Adama Fall Educ Plus",
+      name: "Adama Fall Educ Plus",
       avatar: providerAvatars.Éducation,
       verified: true,
       phone: "+221 78 901 23 45",
@@ -438,8 +439,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "2j à 3j",
     description: "Logo, charte graphique et supports de communication.",
-    longDescription: "Designer créatif pour votre identité visuelle. Nous créons des designs uniques qui reflètent votre marque et attirent vos clients. Logos, chartes graphiques, supports de communication, nous réalisons tous vos projets créatifs.",
-    icon: "🎨",
+    longDescription: "Designer créatif pour votre identité visuelle. Nous créons des designs uniques qui reflètent votre marque et attirent vos clients.",
+    icon: "bi-palette",
     rating: 4.9,
     reviews: 234,
     deliveryTime: "3 jours",
@@ -471,8 +472,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA",
     duration: "2h à 3h",
     description: "Installation et entretien de climatiseurs.",
-    longDescription: "Service rapide et professionnel pour l'installation et l'entretien de vos climatiseurs. Nous intervenons pour l'installation, la maintenance et le dépannage de tous types de climatiseurs.",
-    icon: "❄️",
+    longDescription: "Service rapide et professionnel pour l'installation et l'entretien de vos climatiseurs. Nous intervenons pour l'installation, la maintenance et le dépannage.",
+    icon: "bi-snow",
     rating: 4.7,
     reviews: 167,
     deliveryTime: "1 heure",
@@ -504,8 +505,8 @@ const servicesData: Service[] = [
     priceUnit: "FCFA/heure",
     duration: "Selon besoin",
     description: "Baby-sitting et garde d'enfants à domicile.",
-    longDescription: "Service de garde d'enfants professionnel et sécurisé. Nos baby-sitters sont expérimentées, formées aux premiers secours et vérifiées. Nous assurons la sécurité et le bien-être de vos enfants.",
-    icon: "👶",
+    longDescription: "Service de garde d'enfants professionnel et sécurisé. Nos baby-sitters sont expérimentées, formées aux premiers secours et vérifiées.",
+    icon: "bi-people",
     rating: 4.9,
     reviews: 389,
     deliveryTime: "30 min",
@@ -557,7 +558,6 @@ const ServiceDetail = () => {
   const [bookingMessage, setBookingMessage] = useState("");
   const [isBooking, setIsBooking] = useState(false);
 
-  // Récupération du service
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
@@ -567,7 +567,6 @@ const ServiceDetail = () => {
     }, 500);
   }, [id]);
 
-  // Récupération des services similaires
   const getRelatedServices = () => {
     if (!service) return [];
     return servicesData.filter(s => 
@@ -579,7 +578,6 @@ const ServiceDetail = () => {
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsBooking(true);
-    // Simulation d'envoi de réservation
     setTimeout(() => {
       setIsBooking(false);
       setShowBookingForm(false);
@@ -605,7 +603,9 @@ const ServiceDetail = () => {
       <>
         <Navbar />
         <div className="service-not-found">
-          <div className="not-found-icon">🔍</div>
+          <div className="not-found-icon">
+            <i className="bi bi-search"></i>
+          </div>
           <h2>Service introuvable</h2>
           <p>Le service que vous recherchez n'existe pas ou a été supprimé.</p>
           <Link to="/services" className="btn-primary-custom">
@@ -647,14 +647,16 @@ const ServiceDetail = () => {
               className="service-header-content"
             >
               <div className="service-category-badge">
-                <span className="service-icon">{service.icon}</span>
+                <i className={`bi ${service.icon}`}></i>
                 {service.category}
               </div>
               <h1 className="service-title">{service.name}</h1>
               <div className="service-meta">
                 <StarRating rating={service.rating} />
                 <span className="reviews-count">({service.reviews} avis clients)</span>
-                <span className="delivery-time">⏱️ Intervention sous {service.deliveryTime}</span>
+                <span className="delivery-time">
+                  <i className="bi bi-clock-history"></i> Intervention sous {service.deliveryTime}
+                </span>
               </div>
             </motion.div>
           </div>
@@ -695,10 +697,16 @@ const ServiceDetail = () => {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="service-description-full"
                 >
-                  <h3>À propos de ce service</h3>
+                  <h3>
+                    <i className="bi bi-info-circle"></i>
+                    À propos de ce service
+                  </h3>
                   <p>{service.longDescription || service.description}</p>
                   
-                  <h3>Ce que vous obtenez</h3>
+                  <h3>
+                    <i className="bi bi-check-circle"></i>
+                    Ce que vous obtenez
+                  </h3>
                   <ul className="features-list">
                     {service.features.map((feature, index) => (
                       <motion.li
@@ -707,7 +715,7 @@ const ServiceDetail = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
                       >
-                        <span className="check-icon">✓</span>
+                        <i className="bi bi-check-circle-fill check-icon"></i>
                         {feature}
                       </motion.li>
                     ))}
@@ -728,25 +736,35 @@ const ServiceDetail = () => {
                     <span className="price-unit">{service.priceUnit}</span>
                   </div>
                   <div className="duration">
-                    <span>⏱️ Durée : {service.duration}</span>
+                    <i className="bi bi-hourglass-split"></i> Durée : {service.duration}
                   </div>
                 </div>
 
                 <div className="info-item">
-                  <strong>✅ Disponibilité</strong>
-                  <p>Disponible aujourd'hui</p>
+                  <i className="bi bi-check-circle text-success"></i>
+                  <div>
+                    <strong>Disponibilité</strong>
+                    <p>Disponible aujourd'hui</p>
+                  </div>
                 </div>
 
                 <div className="info-item">
-                  <strong>📍 Lieu d'intervention</strong>
-                  <p>Dakar et sa banlieue</p>
+                  <i className="bi bi-geo-alt text-primary"></i>
+                  <div>
+                    <strong>Lieu d'intervention</strong>
+                    <p>Dakar et sa banlieue</p>
+                  </div>
                 </div>
 
                 <button 
                   className="btn-book-now"
                   onClick={() => setShowBookingForm(!showBookingForm)}
                 >
-                  {showBookingForm ? "Annuler" : "Réserver maintenant"}
+                  {showBookingForm ? (
+                    <><i className="bi bi-x-circle"></i> Annuler</>
+                  ) : (
+                    <><i className="bi bi-calendar-check"></i> Réserver maintenant</>
+                  )}
                 </button>
 
                 {showBookingForm && (
@@ -758,7 +776,9 @@ const ServiceDetail = () => {
                     onSubmit={handleBooking}
                   >
                     <div className="form-group">
-                      <label>Date souhaitée *</label>
+                      <label>
+                        <i className="bi bi-calendar"></i> Date souhaitée *
+                      </label>
                       <input
                         type="date"
                         required
@@ -768,7 +788,9 @@ const ServiceDetail = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Heure souhaitée *</label>
+                      <label>
+                        <i className="bi bi-clock"></i> Heure souhaitée *
+                      </label>
                       <input
                         type="time"
                         required
@@ -777,7 +799,9 @@ const ServiceDetail = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Message (optionnel)</label>
+                      <label>
+                        <i className="bi bi-chat"></i> Message (optionnel)
+                      </label>
                       <textarea
                         rows={3}
                         placeholder="Précisez votre besoin..."
@@ -786,10 +810,10 @@ const ServiceDetail = () => {
                       />
                     </div>
                     <button type="submit" className="btn-confirm-booking" disabled={isBooking}>
-                      {isBooking ? "Envoi en cours..." : "Confirmer la réservation"}
+                      {isBooking ? "Envoi en cours..." : <><i className="bi bi-send"></i> Confirmer la réservation</>}
                     </button>
                     <p className="booking-note">
-                      * Un prestataire vous contactera sous 24h pour confirmer votre réservation
+                      <i className="bi bi-info-circle"></i> Un prestataire vous contactera sous 24h pour confirmer votre réservation
                     </p>
                   </motion.form>
                 )}
@@ -814,19 +838,25 @@ const ServiceDetail = () => {
                   <h3>{service.provider.name}</h3>
                   <div className="provider-badges">
                     {service.provider.verified && (
-                      <span className="badge-verified">✓ Vérifié</span>
+                      <span className="badge-verified">
+                        <i className="bi bi-patch-check-fill"></i> Vérifié
+                      </span>
                     )}
-                    <span className="badge-experience">📅 Depuis {service.provider.since}</span>
-                    <span className="badge-jobs">🏆 {service.provider.completedJobs}+ missions</span>
+                    <span className="badge-experience">
+                      <i className="bi bi-calendar"></i> Depuis {service.provider.since}
+                    </span>
+                    <span className="badge-jobs">
+                      <i className="bi bi-trophy"></i> {service.provider.completedJobs}+ missions
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="provider-contact">
                 <a href={`tel:${service.provider.phone}`} className="contact-phone">
-                  📞 {service.provider.phone}
+                  <i className="bi bi-telephone-fill"></i> {service.provider.phone}
                 </a>
                 <a href={`mailto:${service.provider.email}`} className="contact-email">
-                  ✉️ {service.provider.email}
+                  <i className="bi bi-envelope-fill"></i> {service.provider.email}
                 </a>
               </div>
             </motion.div>
@@ -837,7 +867,9 @@ const ServiceDetail = () => {
         {relatedServices.length > 0 && (
           <section className="related-services">
             <div className="container-custom">
-              <h2 className="section-title">Services similaires</h2>
+              <h2 className="section-title">
+                <i className="bi bi-arrow-left-right"></i> Services similaires
+              </h2>
               <div className="related-services-grid">
                 {relatedServices.map((related, index) => (
                   <motion.div
@@ -849,7 +881,9 @@ const ServiceDetail = () => {
                     className="related-service-card"
                     onClick={() => navigate(`/services/${related.id}`)}
                   >
-                    <div className="related-icon">{related.icon}</div>
+                    <div className="related-icon">
+                      <i className={`bi ${related.icon}`}></i>
+                    </div>
                     <h3>{related.name}</h3>
                     <p>{related.description.substring(0, 60)}...</p>
                     <div className="related-price">
@@ -865,21 +899,35 @@ const ServiceDetail = () => {
         {/* FAQ Section */}
         <section className="faq-section">
           <div className="container-custom">
-            <h2 className="section-title">Questions fréquentes</h2>
+            <h2 className="section-title">
+              <i className="bi bi-question-circle"></i> Questions fréquentes
+            </h2>
             <div className="faq-grid">
               <div className="faq-item">
+                <div className="faq-icon">
+                  <i className="bi bi-question-circle"></i>
+                </div>
                 <h4>Comment réserver ce service ?</h4>
                 <p>Cliquez sur "Réserver maintenant" sur cette page, remplissez le formulaire avec vos informations, et un prestataire vous contactera sous 24h pour confirmer.</p>
               </div>
               <div className="faq-item">
+                <div className="faq-icon">
+                  <i className="bi bi-credit-card"></i>
+                </div>
                 <h4>Comment se passe le paiement ?</h4>
                 <p>Le paiement se fait directement au prestataire après validation du service. Vous pouvez payer en espèces, par virement ou par mobile money.</p>
               </div>
               <div className="faq-item">
+                <div className="faq-icon">
+                  <i className="bi bi-x-circle"></i>
+                </div>
                 <h4>Puis-je annuler ma réservation ?</h4>
                 <p>Oui, l'annulation est gratuite jusqu'à 2h avant le rendez-vous. Au-delà, des frais peuvent s'appliquer.</p>
               </div>
               <div className="faq-item">
+                <div className="faq-icon">
+                  <i className="bi bi-headset"></i>
+                </div>
                 <h4>Que faire en cas de problème ?</h4>
                 <p>Notre service client est disponible 24/7 au +221 78 123 45 67 ou par email à support@kayjob.sn</p>
               </div>

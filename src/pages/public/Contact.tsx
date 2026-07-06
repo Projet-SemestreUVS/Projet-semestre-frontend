@@ -1,3 +1,4 @@
+// src/pages/public/Contact.tsx
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Navbar from "../../components/layout/Navbar";
@@ -48,7 +49,6 @@ const Contact = () => {
     // Création du lien mailto
     const mailtoLink = `mailto:abdoulayegueye005@gmail.com?subject=${subject}&body=${body}`;
     
-    // Tentative d'ouverture du client mail
     try {
       window.location.href = mailtoLink;
       setSubmitStatus("success");
@@ -60,7 +60,6 @@ const Contact = () => {
         message: ""
       });
       
-      // Réinitialiser le message de succès après 5 secondes
       setTimeout(() => {
         setSubmitStatus(null);
       }, 5000);
@@ -77,25 +76,25 @@ const Contact = () => {
   // Contact methods
   const contactMethods = [
     {
-      icon: "📍",
+      icon: "bi-geo-alt",
       title: "Adresse",
-      details: ["Dakar, Sénégal", "Plateforme 100% en ligne"],
+      details: ["Dakar-Plateaux, Sénégal", "Plateforme 100% en ligne"],
       action: null
     },
     {
-      icon: "📞",
+      icon: "bi-telephone",
       title: "Téléphone",
       details: ["+221 76 31 62 164", "Disponible 24h/24"],
       action: "tel:+221763162164"
     },
     {
-      icon: "✉️",
+      icon: "bi-envelope",
       title: "Email",
       details: ["abdoulayegueye005@gmail.com", "Réponse sous 24h"],
       action: "mailto:abdoulayegueye005@gmail.com"
     },
     {
-      icon: "🕒",
+      icon: "bi-clock",
       title: "Horaires",
       details: ["Lun - Ven: 8h00 - 18h00", "Sam: 9h00 - 13h00", "Dim: Fermé"],
       action: null
@@ -136,7 +135,9 @@ const Contact = () => {
               transition={{ duration: 0.6 }}
               className="contact-hero-content"
             >
-              <span className="hero-badge">Contactez-nous</span>
+              <span className="hero-badge">
+                <i className="bi bi-chat-dots"></i> Contactez-nous
+              </span>
               <h1 className="hero-title">
                 Nous sommes à votre <span className="gradient-text">écoute</span>
               </h1>
@@ -161,7 +162,9 @@ const Contact = () => {
                   viewport={{ once: true }}
                   className="method-card"
                 >
-                  <div className="method-icon">{method.icon}</div>
+                  <div className="method-icon">
+                    <i className={`bi ${method.icon}`}></i>
+                  </div>
                   <h3 className="method-title">{method.title}</h3>
                   {method.details.map((detail, idx) => (
                     <p key={idx} className="method-detail">{detail}</p>
@@ -169,7 +172,7 @@ const Contact = () => {
                   {method.action && (
                     <a href={method.action} className="method-action">
                       {method.title === "Téléphone" ? "Appeler maintenant" : "Envoyer un email"}
-                      <span className="action-arrow">→</span>
+                      <i className="bi bi-arrow-right action-arrow"></i>
                     </a>
                   )}
                 </motion.div>
@@ -191,7 +194,9 @@ const Contact = () => {
                 className="form-container"
               >
                 <div className="form-header">
-                  <span className="form-badge">Formulaire de contact</span>
+                  <span className="form-badge">
+                    <i className="bi bi-pencil-square"></i> Formulaire de contact
+                  </span>
                   <h2 className="form-title">Envoyez-nous un message</h2>
                   <p className="form-subtitle">
                     Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
@@ -202,10 +207,10 @@ const Contact = () => {
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="name">
-                        Nom complet <span className="required">*</span>
+                        <i className="bi bi-person"></i> Nom complet <span className="required">*</span>
                       </label>
                       <div className="input-icon">
-                        <span className="icon">👤</span>
+                        <i className="bi bi-person icon"></i>
                         <input
                           type="text"
                           id="name"
@@ -220,10 +225,10 @@ const Contact = () => {
 
                     <div className="form-group">
                       <label htmlFor="email">
-                        Email <span className="required">*</span>
+                        <i className="bi bi-envelope"></i> Email <span className="required">*</span>
                       </label>
                       <div className="input-icon">
-                        <span className="icon">✉️</span>
+                        <i className="bi bi-envelope icon"></i>
                         <input
                           type="email"
                           id="email"
@@ -239,9 +244,11 @@ const Contact = () => {
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor="phone">Téléphone</label>
+                      <label htmlFor="phone">
+                        <i className="bi bi-telephone"></i> Téléphone
+                      </label>
                       <div className="input-icon">
-                        <span className="icon">📞</span>
+                        <i className="bi bi-telephone icon"></i>
                         <input
                           type="tel"
                           id="phone"
@@ -255,10 +262,10 @@ const Contact = () => {
 
                     <div className="form-group">
                       <label htmlFor="subject">
-                        Sujet <span className="required">*</span>
+                        <i className="bi bi-tag"></i> Sujet <span className="required">*</span>
                       </label>
                       <div className="input-icon">
-                        <span className="icon">📝</span>
+                        <i className="bi bi-tag icon"></i>
                         <input
                           type="text"
                           id="subject"
@@ -274,10 +281,10 @@ const Contact = () => {
 
                   <div className="form-group">
                     <label htmlFor="message">
-                      Message <span className="required">*</span>
+                      <i className="bi bi-chat"></i> Message <span className="required">*</span>
                     </label>
                     <div className="input-icon textarea-icon">
-                      <span className="icon">💬</span>
+                      <i className="bi bi-chat icon"></i>
                       <textarea
                         id="message"
                         name="message"
@@ -296,7 +303,8 @@ const Contact = () => {
                       animate={{ opacity: 1, y: 0 }}
                       className="success-message"
                     >
-                      ✓ Message envoyé avec succès ! Notre équipe vous répondra sous 24h.
+                      <i className="bi bi-check-circle-fill"></i>
+                      Message envoyé avec succès ! Notre équipe vous répondra sous 24h.
                     </motion.div>
                   )}
 
@@ -306,7 +314,8 @@ const Contact = () => {
                       animate={{ opacity: 1, y: 0 }}
                       className="error-message"
                     >
-                      ⚠️ Une erreur s'est produite. Veuillez réessayer ou nous contacter directement par téléphone.
+                      <i className="bi bi-exclamation-triangle-fill"></i>
+                      Une erreur s'est produite. Veuillez réessayer ou nous contacter directement par téléphone.
                     </motion.div>
                   )}
 
@@ -323,13 +332,14 @@ const Contact = () => {
                     ) : (
                       <>
                         Envoyer le message
-                        <span className="btn-icon">✈️</span>
+                        <i className="bi bi-send btn-icon"></i>
                       </>
                     )}
                   </button>
 
                   <p className="form-note">
-                    * En soumettant ce formulaire, vous acceptez que vos données soient utilisées pour vous recontacter.
+                    <i className="bi bi-info-circle"></i>
+                    En soumettant ce formulaire, vous acceptez que vos données soient utilisées pour vous recontacter.
                     Vos informations ne seront jamais partagées avec des tiers.
                   </p>
                 </form>
@@ -344,7 +354,9 @@ const Contact = () => {
                 className="info-container"
               >
                 <div className="map-card">
-                  <h3>📍 Notre emplacement</h3>
+                  <h3>
+                    <i className="bi bi-geo-alt"></i> Notre emplacement
+                  </h3>
                   <div className="map-container">
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123666.25034925215!2d-17.46633955!3d14.69277745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec1726a6a0d8e3b%3A0x5f9b8a3a8c5b3b1!2sDakar%2C%20Senegal!5e0!3m2!1sfr!2ssn!4v1700000000000!5m2!1sfr!2ssn"
@@ -356,34 +368,40 @@ const Contact = () => {
                       title="KAY JOB Location"
                     ></iframe>
                   </div>
+                  <div className="address-detail">
+                    <i className="bi bi-geo-alt"></i>
+                    <span>Dakar-Plateaux, Sénégal</span>
+                  </div>
                 </div>
 
                 <div className="social-card">
-                  <h3>📱 Suivez-nous</h3>
+                  <h3>
+                    <i className="bi bi-share"></i> Suivez-nous
+                  </h3>
                   <div className="social-grid">
                     <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-item facebook">
-                      <span>📘</span>
+                      <i className="bi bi-facebook"></i>
                       <div>
                         <strong>Facebook</strong>
                         <p>/kayjob.sn</p>
                       </div>
                     </a>
                     <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-item twitter">
-                      <span>🐦</span>
+                      <i className="bi bi-twitter-x"></i>
                       <div>
                         <strong>Twitter</strong>
                         <p>@kayjob</p>
                       </div>
                     </a>
                     <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-item instagram">
-                      <span>📸</span>
+                      <i className="bi bi-instagram"></i>
                       <div>
                         <strong>Instagram</strong>
                         <p>@kayjob.sn</p>
                       </div>
                     </a>
                     <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-item linkedin">
-                      <span>🔗</span>
+                      <i className="bi bi-linkedin"></i>
                       <div>
                         <strong>LinkedIn</strong>
                         <p>KAY JOB</p>
@@ -393,7 +411,9 @@ const Contact = () => {
                 </div>
 
                 <div className="response-card">
-                  <div className="response-icon">⚡</div>
+                  <div className="response-icon">
+                    <i className="bi bi-lightning-fill"></i>
+                  </div>
                   <h4>Réponse garantie sous 24h</h4>
                   <p>Notre équipe s'engage à vous répondre dans les 24 heures ouvrées suivant votre demande.</p>
                 </div>
@@ -412,7 +432,9 @@ const Contact = () => {
               viewport={{ once: true }}
               className="section-header"
             >
-              <span className="section-badge">FAQ</span>
+              <span className="section-badge">
+                <i className="bi bi-question-circle"></i> FAQ
+              </span>
               <h2 className="section-title">Questions fréquentes</h2>
               <p className="section-subtitle">
                 Retrouvez les réponses aux questions les plus courantes
@@ -430,7 +452,9 @@ const Contact = () => {
                   className="faq-item-contact"
                 >
                   <div className="faq-question">
-                    <span className="faq-icon">❓</span>
+                    <div className="faq-icon">
+                      <i className="bi bi-question-circle"></i>
+                    </div>
                     <h3>{faq.question}</h3>
                   </div>
                   <p className="faq-answer">{faq.answer}</p>
@@ -454,10 +478,10 @@ const Contact = () => {
               <p>Rejoignez notre plateforme et développez votre activité avec KAY JOB</p>
               <div className="cta-buttons-contact">
                 <a href="mailto:abdoulayegueye005@gmail.com?subject=Devenir prestataire KAY JOB&body=Bonjour,%0D%0A%0D%0AJe souhaite devenir prestataire sur KAY JOB.%0D%0A%0D%0AVoici mes informations:%0D%0A- Nom complet: %0D%0A- Métier: %0D%0A- Téléphone: %0D%0A%0D%0ACordialement" className="cta-primary">
-                  Devenir prestataire
+                  <i className="bi bi-briefcase"></i> Devenir prestataire
                 </a>
                 <a href="tel:+221763162164" className="cta-secondary">
-                  Appel direct
+                  <i className="bi bi-telephone-fill"></i> Appel direct
                 </a>
               </div>
             </motion.div>

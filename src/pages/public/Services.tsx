@@ -1,3 +1,4 @@
+// src/pages/public/Services.tsx
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -35,7 +36,7 @@ const Services = () => {
   const [sortBy, setSortBy] = useState("popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Données enrichies des services
+  // Données enrichies des services avec icônes Bootstrap
   const services: Service[] = [
     {
       id: 1,
@@ -45,7 +46,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Intervention rapide pour fuites, débouchage et installation sanitaire.",
       longDescription: "Service de plomberie d'urgence disponible 24h/24 et 7j/7. Intervenez qualifiés avec matériel professionnel.",
-      icon: "🔧",
+      icon: "bi-wrench",
       rating: 4.8,
       reviews: 234,
       deliveryTime: "30 min",
@@ -65,7 +66,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Maintenance, branchement et dépannage pour votre domicile ou bureau.",
       longDescription: "Installations électriques complètes, mise aux normes, dépannage d'urgence.",
-      icon: "⚡",
+      icon: "bi-lightning-fill",
       rating: 4.9,
       reviews: 189,
       deliveryTime: "45 min",
@@ -85,7 +86,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Sites vitrine, landing pages et solutions métier sur mesure.",
       longDescription: "Création de sites web modernes, responsive et optimisés SEO.",
-      icon: "💻",
+      icon: "bi-code-square",
       rating: 4.7,
       reviews: 567,
       deliveryTime: "5 jours",
@@ -105,7 +106,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Livraison, déménagement et déplacement rapide selon vos besoins.",
       longDescription: "Service de transport fiable avec suivi GPS en temps réel.",
-      icon: "🚚",
+      icon: "bi-truck",
       rating: 4.6,
       reviews: 432,
       deliveryTime: "20 min",
@@ -125,7 +126,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Coupe, brushing et soins de beauté réalisés par des professionnels.",
       longDescription: "Salon de coiffure haut de gamme, produits naturels et service personnalisé.",
-      icon: "✂️",
+      icon: "bi-scissors",
       rating: 4.9,
       reviews: 321,
       deliveryTime: "1 heure",
@@ -145,7 +146,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Nettoyage complet et entretien régulier de votre espace.",
       longDescription: "Service de nettoyage professionnel pour bureaux et domiciles.",
-      icon: "🧹",
+      icon: "bi-house-door",
       rating: 4.8,
       reviews: 298,
       deliveryTime: "2 heures",
@@ -165,7 +166,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Entretien de jardin, tonte, taille et aménagement paysager.",
       longDescription: "Services complets d'entretien et création d'espaces verts.",
-      icon: "🌿",
+      icon: "bi-tree",
       rating: 4.7,
       reviews: 156,
       deliveryTime: "1 jour",
@@ -185,7 +186,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Séances photo professionnelles, événements et portraits.",
       longDescription: "Photographe expérimenté pour tous vos événements spéciaux.",
-      icon: "📷",
+      icon: "bi-camera",
       rating: 4.9,
       reviews: 203,
       deliveryTime: "3 jours",
@@ -205,7 +206,7 @@ const Services = () => {
       priceUnit: "FCFA/heure",
       description: "Soutien scolaire et cours particuliers toutes matières.",
       longDescription: "Professeurs qualifiés pour un accompagnement personnalisé.",
-      icon: "📚",
+      icon: "bi-book",
       rating: 4.8,
       reviews: 456,
       deliveryTime: "24h",
@@ -225,7 +226,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Logo, charte graphique et supports de communication.",
       longDescription: "Designer créatif pour votre identité visuelle.",
-      icon: "🎨",
+      icon: "bi-palette",
       rating: 4.9,
       reviews: 234,
       deliveryTime: "3 jours",
@@ -245,7 +246,7 @@ const Services = () => {
       priceUnit: "FCFA",
       description: "Installation et entretien de climatiseurs.",
       longDescription: "Service rapide et professionnel pour clim réversible.",
-      icon: "❄️",
+      icon: "bi-snow",
       rating: 4.7,
       reviews: 167,
       deliveryTime: "1 heure",
@@ -265,7 +266,7 @@ const Services = () => {
       priceUnit: "FCFA/heure",
       description: "Baby-sitting et garde d'enfants à domicile.",
       longDescription: "Gardes expérimentées et formées aux premiers secours.",
-      icon: "👶",
+      icon: "bi-people",
       rating: 4.9,
       reviews: 389,
       deliveryTime: "30 min",
@@ -329,7 +330,9 @@ const Services = () => {
     >
       <div className="service-card-inner">
         <div className="service-card-header">
-          <div className="service-icon">{service.icon}</div>
+          <div className="service-icon">
+            <i className={`bi ${service.icon}`}></i>
+          </div>
           <div className="service-category-badge">{service.category}</div>
         </div>
         
@@ -353,7 +356,7 @@ const Services = () => {
           <div className="service-features">
             {service.features.map((feature, i) => (
               <span key={i} className="feature-tag">
-                ✓ {feature}
+                <i className="bi bi-check-circle-fill"></i> {feature}
               </span>
             ))}
           </div>
@@ -365,12 +368,12 @@ const Services = () => {
             </div>
             
             <div className="service-delivery">
-              <span>⏱️ {service.deliveryTime}</span>
+              <i className="bi bi-clock-history"></i> {service.deliveryTime}
             </div>
             
             <Link to={`/services/${service.id}`} className="btn-view-details">
               Voir détails
-              <span className="btn-arrow">→</span>
+              <i className="bi bi-arrow-right btn-arrow"></i>
             </Link>
           </div>
         </div>
@@ -392,6 +395,9 @@ const Services = () => {
               transition={{ duration: 0.6 }}
               className="services-hero-content"
             >
+              <span className="hero-badge">
+                <i className="bi bi-grid"></i> Nos services
+              </span>
               <h1 className="services-hero-title">
                 Nos <span className="gradient-text">Services</span>
               </h1>
@@ -423,7 +429,7 @@ const Services = () => {
             <div className="filters-wrapper">
               {/* Search Bar */}
               <div className="search-wrapper">
-                <i className="search-icon">🔍</i>
+                <i className="bi bi-search search-icon"></i>
                 <input
                   type="text"
                   placeholder="Rechercher un service..."
@@ -468,13 +474,13 @@ const Services = () => {
                     onClick={() => setViewMode("grid")}
                     className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
                   >
-                    ▦
+                    <i className="bi bi-grid-3x3-gap-fill"></i>
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
                     className={`view-btn ${viewMode === "list" ? "active" : ""}`}
                   >
-                    ☰
+                    <i className="bi bi-list-ul"></i>
                   </button>
                 </div>
               </div>
@@ -513,7 +519,9 @@ const Services = () => {
                     animate={{ opacity: 1 }}
                     className="no-results"
                   >
-                    <div className="no-results-icon">🔍</div>
+                    <div className="no-results-icon">
+                      <i className="bi bi-search"></i>
+                    </div>
                     <h3>Aucun service trouvé</h3>
                     <p>Essayez de modifier vos critères de recherche</p>
                     <button onClick={() => {
@@ -521,6 +529,7 @@ const Services = () => {
                       setSelectedCategory("all");
                       setPriceRange({ min: 0, max: 200000 });
                     }} className="reset-filters-btn">
+                      <i className="bi bi-arrow-counterclockwise"></i>
                       Réinitialiser les filtres
                     </button>
                   </motion.div>
@@ -538,7 +547,7 @@ const Services = () => {
               <p>Rejoignez notre plateforme et développez votre activité</p>
               <Link to="/register?role=prestataire" className="cta-button">
                 Devenir prestataire
-                <span className="btn-arrow">→</span>
+                <i className="bi bi-arrow-right btn-arrow"></i>
               </Link>
             </div>
           </div>

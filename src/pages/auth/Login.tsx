@@ -94,17 +94,14 @@ const Login = () => {
       
       console.log("Connexion réussie - Rôle:", userData.role);
       
-      // Appeler la fonction login du contexte
       login(token, userData);
       
-      // Sauvegarder l'email
       if (rememberMe) {
         localStorage.setItem("remember_email", form.email);
       } else {
         localStorage.removeItem("remember_email");
       }
       
-      // Rediriger après un court délai pour laisser le contexte se mettre à jour
       setTimeout(() => {
         redirectBasedOnRole(userData.role);
       }, 100);
@@ -118,7 +115,6 @@ const Login = () => {
     }
   };
 
-  // Charger l'email mémorisé
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("remember_email");
     if (rememberedEmail) {
@@ -131,7 +127,10 @@ const Login = () => {
     return (
       <div className="login-page">
         <div className="login-container">
-          <div className="loading-spinner">Chargement...</div>
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Chargement...</p>
+          </div>
         </div>
       </div>
     );
@@ -141,7 +140,7 @@ const Login = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-grid">
-          {/* Left Side - Branding */}
+          {/* Left Side - Branding avec logo */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -151,14 +150,52 @@ const Login = () => {
             <div className="brand-content">
               <div className="brand-logo">
                 <img src={logo} alt="KAY JOB" />
+                <div className="brand-badge">
+                  <i className="bi bi-star-fill"></i>
+                </div>
               </div>
               <h1 className="brand-title">
                 Bienvenue sur
                 <span className="gradient-text"> KAY JOB</span>
               </h1>
               <p className="brand-description">
-                Connectez-vous pour accéder à votre espace personnel.
+                Connectez-vous pour accéder à votre espace personnel et gérer vos services.
               </p>
+              <div className="brand-features">
+                <div className="feature-item">
+                  <i className="bi bi-check-circle-fill"></i>
+                  <span>Accès instantané aux services</span>
+                </div>
+                <div className="feature-item">
+                  <i className="bi bi-check-circle-fill"></i>
+                  <span>Gestion de vos réservations</span>
+                </div>
+                <div className="feature-item">
+                  <i className="bi bi-check-circle-fill"></i>
+                  <span>Messagerie intégrée</span>
+                </div>
+              </div>
+              <div className="brand-stats">
+                <div className="stat">
+                  <span className="stat-number">10k+</span>
+                  <span className="stat-label">Utilisateurs</span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat">
+                  <span className="stat-number">98%</span>
+                  <span className="stat-label">Satisfaction</span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat">
+                  <span className="stat-number">24/7</span>
+                  <span className="stat-label">Support</span>
+                </div>
+              </div>
+              {/* Lien retour à l'accueil */}
+              <Link to="/" className="back-home-link">
+                <i className="bi bi-arrow-left"></i>
+                Retour à l'accueil
+              </Link>
             </div>
           </motion.div>
 
@@ -177,21 +214,27 @@ const Login = () => {
 
               <form onSubmit={handleSubmit} className="login-form">
                 <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="exemple@email.com"
-                    className={errors.email ? "error" : ""}
-                  />
-                  {errors.email && <span className="error-message">{errors.email}</span>}
+                  <label htmlFor="email">
+                    <i className="bi bi-envelope"></i> Email
+                  </label>
+                  <div className="input-wrapper">
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="exemple@email.com"
+                      className={errors.email ? "error" : ""}
+                    />
+                    {errors.email && <span className="error-message">{errors.email}</span>}
+                  </div>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="password">Mot de passe</label>
+                  <label htmlFor="password">
+                    <i className="bi bi-lock"></i> Mot de passe
+                  </label>
                   <div className="password-input-wrapper">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -207,7 +250,11 @@ const Login = () => {
                       className="password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? "👁️" : "👁️‍🗨️"}
+                      {showPassword ? (
+                        <i className="bi bi-eye"></i>
+                      ) : (
+                        <i className="bi bi-eye-slash"></i>
+                      )}
                     </button>
                   </div>
                   {errors.password && <span className="error-message">{errors.password}</span>}
@@ -233,12 +280,24 @@ const Login = () => {
                   className="submit-btn"
                   disabled={loading}
                 >
-                  {loading ? "Connexion en cours..." : "Se connecter"}
+                  {loading ? (
+                    <>
+                      <span className="spinner-small"></span>
+                      Connexion en cours...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-box-arrow-in-right"></i>
+                      Se connecter
+                    </>
+                  )}
                 </button>
 
                 <div className="register-link">
                   <span>Pas encore inscrit ?</span>
-                  <Link to="/register">Créer un compte →</Link>
+                  <Link to="/register">
+                    Créer un compte <i className="bi bi-arrow-right"></i>
+                  </Link>
                 </div>
               </form>
             </div>

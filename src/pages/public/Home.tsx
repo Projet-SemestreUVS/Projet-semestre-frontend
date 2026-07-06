@@ -1,6 +1,8 @@
+// src/pages/public/Home.tsx
 import { useEffect, useState } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import logo from "../../assets/logos/prestataire.png";
@@ -72,7 +74,7 @@ const StepCard = ({ number, icon, title, description, index }: any) => (
   </motion.div>
 );
 
-// Composant témoignage - CORRIGÉ
+// Composant témoignage
 const TestimonialCard = ({ avatar, text, name, role, index }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -87,7 +89,6 @@ const TestimonialCard = ({ avatar, text, name, role, index }: any) => (
           alt={name} 
           className="testimonial-avatar" 
           onError={(e) => {
-            // Gestion d'erreur si l'image ne charge pas
             (e.target as HTMLImageElement).style.display = 'none';
             const parent = (e.target as HTMLImageElement).parentElement;
             if (parent) {
@@ -116,7 +117,6 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const searchSuggestions = ["Plomberie", "Développement", "Électricité", "Ménage"];
 
-  // Données des catégories
   const categories = [
     { icon: "bi-tools", title: "Plomberie", count: 245 },
     { icon: "bi-lightning-charge-fill", title: "Électricité", count: 189 },
@@ -128,7 +128,6 @@ const Home = () => {
     { icon: "bi-palette-fill", title: "Design graphique", count: 234 },
   ];
 
-  // Données des étapes
   const steps = [
     {
       number: "01",
@@ -150,7 +149,6 @@ const Home = () => {
     },
   ];
 
-  // Données des fonctionnalités
   const features = [
     {
       icon: "bi-shield-lock-fill",
@@ -174,22 +172,21 @@ const Home = () => {
     },
   ];
 
-  // Données des témoignages - CORRIGÉ avec les imports d'images corrects
   const testimonials = [
     {
-      avatar: laye,  // Utilisation directe de l'import
+      avatar: laye,
       text: "Service exceptionnel ! J'ai trouvé un développeur en moins de 24h. Le travail est de grande qualité.",
       name: "Abdoulaye Gueye",
       role: "Client satisfait",
     },
     {
-      avatar: awa,   // Utilisation directe de l'import
+      avatar: awa,
       text: "Plateforme très intuitive et fiable. Les prestataires sont professionnels et réactifs.",
       name: "Ndeye Awa Mbodj",
       role: "Utilisatrice régulière",
     },
     {
-      avatar: pene,  // Utilisation directe de l'import
+      avatar: pene,
       text: "Meilleure plateforme pour trouver des services de qualité. Je recommande vivement !",
       name: "Khady Pène",
       role: "Client professionnel",
@@ -199,7 +196,6 @@ const Home = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulation de recherche
     setTimeout(() => {
       console.log("Recherche:", searchQuery);
       setIsLoading(false);
@@ -210,21 +206,27 @@ const Home = () => {
     <>
       <Navbar />
 
-      {/* SECTION HERO */}
+      {/* SECTION HERO - Espacement amélioré */}
       <section className="hero-section">
         <div className="hero-backdrop" />
         <div className="container-custom hero-shell">
-          <div className="row align-items-center min-vh-75 gy-5">
-            <div className="col-lg-7 mb-5 mb-lg-0">
+          <div className="row align-items-center gy-5">
+            <div className="col-lg-7">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
                 className="hero-copy"
               >
-                <span className="hero-badge">Votre marketplace de confiance</span>
-                <h1 className="hero-title">Trouvez le meilleur prestataire près de chez vous.</h1>
-                <p className="hero-subtitle">Plomberie, développement, électricité, transport, coiffure et bien plus encore. Des professionnels vérifiés, des prix clairs et des réservations rapides.</p>
+                <span className="hero-badge">⭐ Votre marketplace de confiance</span>
+                <h1 className="hero-title">
+                  Trouvez le meilleur <br />
+                  <span className="hero-title-highlight">prestataire</span> près de chez vous.
+                </h1>
+                <p className="hero-subtitle">
+                  Plomberie, développement, électricité, transport, coiffure et bien plus encore. 
+                  Des professionnels vérifiés, des prix clairs et des réservations rapides.
+                </p>
               </motion.div>
 
               <motion.form
@@ -248,7 +250,9 @@ const Home = () => {
 
               <motion.div className="search-tags" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.5 }}>
                 {searchSuggestions.map((item) => (
-                  <button key={item} type="button" className="search-chip" onClick={() => setSearchQuery(item)}>{item}</button>
+                  <button key={item} type="button" className="search-chip" onClick={() => setSearchQuery(item)}>
+                    {item}
+                  </button>
                 ))}
               </motion.div>
 
@@ -258,9 +262,18 @@ const Home = () => {
                 transition={{ delay: 0.45, duration: 0.6 }}
                 className="hero-stats"
               >
-                <div className="stat-item"><span className="stat-number">10k+</span><span className="stat-label">Prestataires</span></div>
-                <div className="stat-item"><span className="stat-number">5k+</span><span className="stat-label">Services</span></div>
-                <div className="stat-item"><span className="stat-number">98%</span><span className="stat-label">Clients satisfaits</span></div>
+                <div className="stat-item">
+                  <span className="stat-number">10k+</span>
+                  <span className="stat-label">Prestataires</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">5k+</span>
+                  <span className="stat-label">Services</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">98%</span>
+                  <span className="stat-label">Clients satisfaits</span>
+                </div>
               </motion.div>
             </div>
 
@@ -271,7 +284,7 @@ const Home = () => {
               className="col-lg-5 text-center"
             >
               <div className="prestataire-spotlight-card">
-                <div className="prestataire-badge">Prestataire du moment</div>
+                <div className="prestataire-badge">🏆 Prestataire du moment</div>
                 <div className="prestataire-image-wrap">
                   <img 
                     src={logo} 
@@ -297,21 +310,23 @@ const Home = () => {
       </section>
 
       {/* SECTION CATÉGORIES */}
-      <section className="categories-section section-padding soft-surface">
+      <section className="categories-section section-padding">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
+            className="section-header"
           >
+            <span className="section-badge">Catégories</span>
             <h2 className="section-title">Catégories populaires</h2>
-            <p className="text-center text-muted mb-5">
+            <p className="section-subtitle">
               Découvrez nos catégories les plus recherchées par nos utilisateurs
             </p>
           </motion.div>
 
-          <div className="row">
+          <div className="row g-4">
             {categories.map((category, index) => (
               <CategoryCard key={index} {...category} index={index} />
             ))}
@@ -331,16 +346,19 @@ const Home = () => {
       </section>
 
       {/* SECTION COMMENT ÇA MARCHE */}
-      <section className="how-it-works-section section-padding soft-surface">
+      <section className="how-it-works-section section-padding">
         <div className="container-custom">
           <ScrollAnimation>
-            <h2 className="section-title">Comment ça marche ?</h2>
-            <p className="text-center text-muted mb-5">
-              Trois étapes simples pour trouver le prestataire idéal
-            </p>
+            <div className="section-header">
+              <span className="section-badge">Processus</span>
+              <h2 className="section-title">Comment ça marche ?</h2>
+              <p className="section-subtitle">
+                Trois étapes simples pour trouver le prestataire idéal
+              </p>
+            </div>
           </ScrollAnimation>
 
-          <div className="row">
+          <div className="row g-4">
             {steps.map((step, index) => (
               <StepCard key={index} {...step} index={index} />
             ))}
@@ -349,18 +367,21 @@ const Home = () => {
       </section>
 
       {/* SECTION FONCTIONNALITÉS */}
-      <section className="features-section section-padding soft-surface">
+      <section className="features-section section-padding">
         <div className="container-custom">
           <ScrollAnimation>
-            <h2 className="section-title">Pourquoi nous choisir ?</h2>
-            <p className="text-center text-muted mb-5">
-              Une plateforme fiable et sécurisée pour tous vos besoins
-            </p>
+            <div className="section-header">
+              <span className="section-badge">Pourquoi nous ?</span>
+              <h2 className="section-title">Pourquoi nous choisir ?</h2>
+              <p className="section-subtitle">
+                Une plateforme fiable et sécurisée pour tous vos besoins
+              </p>
+            </div>
           </ScrollAnimation>
 
-          <div className="row">
+          <div className="row g-4">
             {features.map((feature, index) => (
-              <div key={index} className="col-md-6 col-lg-3 mb-4">
+              <div key={index} className="col-md-6 col-lg-3">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -383,13 +404,16 @@ const Home = () => {
       <section className="testimonials-section section-padding">
         <div className="container-custom">
           <ScrollAnimation>
-            <h2 className="section-title">Ce que nos clients disent</h2>
-            <p className="text-center text-muted mb-5">
-              Des milliers de clients satisfaits nous font confiance
-            </p>
+            <div className="section-header">
+              <span className="section-badge">Témoignages</span>
+              <h2 className="section-title">Ce que nos clients disent</h2>
+              <p className="section-subtitle">
+                Des milliers de clients satisfaits nous font confiance
+              </p>
+            </div>
           </ScrollAnimation>
 
-          <div className="row">
+          <div className="row g-4">
             {testimonials.map((testimonial, index) => (
               <TestimonialCard key={index} {...testimonial} index={index} />
             ))}
@@ -425,21 +449,15 @@ const Home = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn btn-light btn-custom"
-                style={{
-                  background: "white",
-                  color: "var(--primary)",
-                  padding: "1rem 2rem",
-                  fontSize: "1.125rem",
-                  fontWeight: 600,
-                }}
-                onClick={() => console.log("S'inscrire")}
-              >
-                <i className="bi bi-arrow-right-circle me-2" /> Commencer maintenant
-              </motion.button>
+              <Link to="/register">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn btn-light btn-custom cta-button"
+                >
+                  <i className="bi bi-arrow-right-circle me-2" /> Commencer maintenant
+                </motion.button>
+              </Link>
             </motion.div>
           </div>
         </div>

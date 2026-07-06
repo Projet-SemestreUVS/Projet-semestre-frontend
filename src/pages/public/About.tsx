@@ -1,3 +1,4 @@
+// src/pages/public/About.tsx
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
@@ -9,37 +10,37 @@ const About = () => {
     {
       title: "Fiabilité",
       text: "Nous vérifions chaque prestataire pour garantir une expérience sûre et sérieuse.",
-      icon: "🔒",
+      icon: "bi-shield-check",
       color: "#0D6EFD"
     },
     {
       title: "Rapidité",
       text: "Réservez en quelques minutes et obtenez une réponse rapide de professionnels qualifiés.",
-      icon: "⚡",
+      icon: "bi-lightning",
       color: "#22C55E"
     },
     {
       title: "Transparence",
       text: "Prix, délais et prestations sont toujours clairement communiqués avant toute réservation.",
-      icon: "🔍",
+      icon: "bi-eye",
       color: "#F59E0B"
     },
     {
       title: "Innovation",
       text: "Nous innovons constamment pour vous offrir la meilleure expérience de mise en relation.",
-      icon: "💡",
+      icon: "bi-lightbulb",
       color: "#8B5CF6"
     },
     {
       title: "Communauté",
       text: "Nous construisons une communauté solidaire où chacun peut contribuer et bénéficier.",
-      icon: "👥",
+      icon: "bi-people",
       color: "#EC4899"
     },
     {
       title: "Qualité",
       text: "Nous garantissons des prestations de qualité avec des professionnels rigoureusement sélectionnés.",
-      icon: "⭐",
+      icon: "bi-star",
       color: "#06B6D4"
     }
   ];
@@ -49,32 +50,32 @@ const About = () => {
       name: "Abdoulaye Gueye",
       role: "Fondateur & CEO",
       description: "Expert en technologies et entrepreneur passionné par l'innovation sociale.",
-      avatar: "👨‍💼",
+      avatar: "bi-person",
       social: { linkedin: "#", twitter: "#" }
     },
     {
       name: "Ndeye Awa Mbodj",
       role: "Directrice des Opérations",
       description: "Spécialiste en gestion de projets et satisfaction client.",
-      avatar: "👩‍💼",
+      avatar: "bi-person",
       social: { linkedin: "#", twitter: "#" }
     },
     {
       name: "Khady Pène",
       role: "Responsable Marketing",
       description: "Stratège marketing avec une passion pour la croissance des communautés.",
-      avatar: "👩‍🎨",
+      avatar: "bi-person",
       social: { linkedin: "#", twitter: "#" }
     }
   ];
 
   const stats = [
-    { number: "10k+", label: "Prestataires actifs", icon: "👥" },
-    { number: "50k+", label: "Clients satisfaits", icon: "😊" },
-    { number: "98%", label: "Taux de satisfaction", icon: "📊" },
-    { number: "24/7", label: "Support disponible", icon: "🕒" },
-    { number: "500+", label: "Services proposés", icon: "🔧" },
-    { number: "4.9/5", label: "Note moyenne", icon: "⭐" }
+    { number: "10k+", label: "Prestataires actifs", icon: "bi-people" },
+    { number: "50k+", label: "Clients satisfaits", icon: "bi-emoji-smile" },
+    { number: "98%", label: "Taux de satisfaction", icon: "bi-graph-up-arrow" },
+    { number: "24/7", label: "Support disponible", icon: "bi-clock" },
+    { number: "500+", label: "Services proposés", icon: "bi-grid" },
+    { number: "4.9/5", label: "Note moyenne", icon: "bi-star-fill" }
   ];
 
   const milestones = [
@@ -90,21 +91,21 @@ const About = () => {
       name: "Ibrahima Ndiaye",
       role: "Prestataire Plomberie",
       text: "KAY JOB a transformé mon activité. Grâce à la plateforme, j'ai triplé mon chiffre d'affaires !",
-      avatar: "👨‍🔧",
+      avatar: "bi-person",
       rating: 5
     },
     {
       name: "Selbe Laye Nguenne",
       role: "Client Particulier",
       text: "Une plateforme fiable et facile à utiliser. J'ai trouvé des prestataires de qualité pour tous mes besoins.",
-      avatar: "👩",
+      avatar: "bi-person",
       rating: 5
     },
     {
       name: "Cheikou Sarr",
       role: "Développeur Web",
       text: "Je recommande vivement KAY JOB pour sa simplicité et son professionnalisme.",
-      avatar: "👨‍💻",
+      avatar: "bi-person",
       rating: 5
     }
   ];
@@ -124,7 +125,9 @@ const About = () => {
               transition={{ duration: 0.6 }}
               className="about-hero-content"
             >
-              <span className="hero-badge">À propos de nous</span>
+              <span className="hero-badge">
+                <i className="bi bi-info-circle"></i> À propos de nous
+              </span>
               <h1 className="hero-title">
                 La plateforme qui révolutionne 
                 <span className="gradient-text"> les services à domicile</span>
@@ -136,10 +139,10 @@ const About = () => {
               <div className="hero-buttons">
                 <Link to="/services" className="btn-primary-custom">
                   Découvrir les services
-                  <span className="btn-arrow">→</span>
+                  <i className="bi bi-arrow-right btn-arrow"></i>
                 </Link>
                 <Link to="/contact" className="btn-outline-custom">
-                  Nous contacter
+                  <i className="bi bi-envelope"></i> Nous contacter
                 </Link>
               </div>
             </motion.div>
@@ -157,7 +160,9 @@ const About = () => {
                 viewport={{ once: true }}
                 className="mission-content"
               >
-                <span className="section-badge">Notre mission</span>
+                <span className="section-badge">
+                  <i className="bi bi-bullseye"></i> Notre mission
+                </span>
                 <h2 className="section-title-left">
                   Faciliter l'accès aux services de qualité pour tous
                 </h2>
@@ -185,7 +190,9 @@ const About = () => {
                 className="mission-image"
               >
                 <div className="image-card">
-                  <div className="image-icon">⭐</div>
+                  <div className="image-icon">
+                    <i className="bi bi-star-fill"></i>
+                  </div>
                   <h3>KAY JOB</h3>
                   <p>Votre partenaire de confiance</p>
                 </div>
@@ -213,7 +220,9 @@ const About = () => {
                   viewport={{ once: true }}
                   className="stat-card"
                 >
-                  <div className="stat-icon">{stat.icon}</div>
+                  <div className="stat-icon">
+                    <i className={`bi ${stat.icon}`}></i>
+                  </div>
                   <div className="stat-number">{stat.number}</div>
                   <div className="stat-label">{stat.label}</div>
                 </motion.div>
@@ -232,7 +241,9 @@ const About = () => {
               viewport={{ once: true }}
               className="section-header"
             >
-              <span className="section-badge">Nos valeurs</span>
+              <span className="section-badge">
+                <i className="bi bi-heart"></i> Nos valeurs
+              </span>
               <h2 className="section-title">Ce qui nous guide au quotidien</h2>
               <p className="section-subtitle">
                 Des principes fondamentaux qui façonnent notre culture et notre façon de travailler
@@ -251,7 +262,7 @@ const About = () => {
                   className="value-card"
                 >
                   <div className="value-icon" style={{ background: `${value.color}15`, color: value.color }}>
-                    {value.icon}
+                    <i className={`bi ${value.icon}`}></i>
                   </div>
                   <h3 className="value-title">{value.title}</h3>
                   <p className="value-text">{value.text}</p>
@@ -271,7 +282,9 @@ const About = () => {
               viewport={{ once: true }}
               className="section-header"
             >
-              <span className="section-badge">Notre histoire</span>
+              <span className="section-badge">
+                <i className="bi bi-clock-history"></i> Notre histoire
+              </span>
               <h2 className="section-title">Un parcours d'innovation</h2>
               <p className="section-subtitle">
                 Découvrez les étapes clés de notre développement
@@ -312,7 +325,9 @@ const About = () => {
               viewport={{ once: true }}
               className="section-header"
             >
-              <span className="section-badge">Notre équipe</span>
+              <span className="section-badge">
+                <i className="bi bi-people"></i> Notre équipe
+              </span>
               <h2 className="section-title">Des passionnés à votre service</h2>
               <p className="section-subtitle">
                 Une équipe dédiée qui travaille chaque jour pour améliorer votre expérience
@@ -330,13 +345,19 @@ const About = () => {
                   whileHover={{ y: -8 }}
                   className="team-card"
                 >
-                  <div className="team-avatar">{member.avatar}</div>
+                  <div className="team-avatar">
+                    <i className={`bi ${member.avatar}`}></i>
+                  </div>
                   <h3 className="team-name">{member.name}</h3>
                   <div className="team-role">{member.role}</div>
                   <p className="team-description">{member.description}</p>
                   <div className="team-social">
-                    <a href={member.social.linkedin} className="social-link">🔗</a>
-                    <a href={member.social.twitter} className="social-link">🐦</a>
+                    <a href={member.social.linkedin} className="social-link">
+                      <i className="bi bi-linkedin"></i>
+                    </a>
+                    <a href={member.social.twitter} className="social-link">
+                      <i className="bi bi-twitter-x"></i>
+                    </a>
                   </div>
                 </motion.div>
               ))}
@@ -354,7 +375,9 @@ const About = () => {
               viewport={{ once: true }}
               className="section-header"
             >
-              <span className="section-badge">Témoignages</span>
+              <span className="section-badge">
+                <i className="bi bi-chat-quote"></i> Témoignages
+              </span>
               <h2 className="section-title">Ce qu'ils disent de nous</h2>
               <p className="section-subtitle">
                 Des retours authentiques de notre communauté
@@ -371,7 +394,9 @@ const About = () => {
                   viewport={{ once: true }}
                   className="testimonial-card-about"
                 >
-                  <div className="testimonial-avatar">{testimonial.avatar}</div>
+                  <div className="testimonial-avatar">
+                    <i className={`bi ${testimonial.avatar}`}></i>
+                  </div>
                   <div className="testimonial-stars">
                     {"★".repeat(testimonial.rating)}
                   </div>
@@ -398,10 +423,10 @@ const About = () => {
               <p>Que vous soyez prestataire ou demandeur, KAY JOB est là pour vous accompagner</p>
               <div className="cta-buttons">
                 <Link to="/register?role=prestataire" className="cta-btn-primary">
-                  Devenir prestataire
+                  <i className="bi bi-briefcase"></i> Devenir prestataire
                 </Link>
                 <Link to="/register" className="cta-btn-secondary">
-                  S'inscrire comme client
+                  <i className="bi bi-person-plus"></i> S'inscrire comme client
                 </Link>
               </div>
             </motion.div>
